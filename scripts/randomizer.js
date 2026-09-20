@@ -303,25 +303,9 @@
     }
 
     function buildHandMarkup(value) {
-        var fingerSets = {
-            1: ['index'],
-            2: ['index', 'middle'],
-            3: ['index', 'middle', 'ring'],
-            4: ['index', 'middle', 'ring', 'pinky'],
-            5: ['thumb', 'index', 'middle', 'ring', 'pinky'],
-            6: ['thumb', 'index', 'middle', 'ring', 'pinky']
-        };
-        var fingers = fingerSets[value] || [];
-        var html = '<span class="handFace"><span class="palm"></span>';
-        var i;
-        for (i = 0; i < fingers.length; i++) {
-            html += '<span class="finger ' + fingers[i] + '"></span>';
-        }
-        if (value >= 6) {
-            html += '<span class="plusOne">+1</span>';
-        }
-        html += '</span>';
-        return html;
+        if (!value) { return ''; }
+        var clamped = Math.min(6, Math.max(1, value));
+        return '<img class="handImg" src="assets/dice-hands/' + clamped + '.png" alt="' + clamped + '">';
     }
 
     function buildFaceInner(value, style) {
