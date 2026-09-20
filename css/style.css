@@ -451,6 +451,22 @@ h1 {
     }
 }
 
+.appFooter {
+    text-align: center;
+    color: #9bacc0;
+    font-size: 11px;
+}
+
+.appFooter a {
+    color: #9bacc0;
+    text-decoration: underline;
+}
+
+.appFooter a:hover,
+.appFooter a:focus {
+    color: #2563eb;
+}
+
 @media (max-width: 560px) {
     .topbar {
         justify-content: center;
