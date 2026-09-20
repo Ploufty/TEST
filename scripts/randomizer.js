@@ -1,8 +1,4 @@
 (function() {
-    var BASE_W = 860;
-    var BASE_H = 480;
-    var app = document.getElementById('app');
-    var viewport = document.getElementById('viewport');
     var nameList = document.getElementById('nameList');
     var countBadge = document.getElementById('countBadge');
     var drawButton = document.getElementById('drawButton');
@@ -14,30 +10,13 @@
     var fileImport = document.getElementById('fileImport');
     var btnClear = document.getElementById('btnClear');
     var confettiLayer = document.getElementById('confettiLayer');
+    var removeDrawnToggle = document.getElementById('removeDrawnToggle');
+    var showCounterToggle = document.getElementById('showCounterToggle');
+    var drawCounter = document.getElementById('drawCounter');
+    var drawCounterValue = document.getElementById('drawCounterValue');
+    var btnResetCounter = document.getElementById('btnResetCounter');
     var isRolling = false;
-    var resizeTimer = null;
-
-    function fitApp() {
-        var w = viewport.clientWidth || window.innerWidth || BASE_W;
-        var h = viewport.clientHeight || window.innerHeight || BASE_H;
-        var scale = Math.min(w / BASE_W, h / BASE_H);
-        var left = Math.max(0, (w - BASE_W * scale) / 2);
-        var top = Math.max(0, (h - BASE_H * scale) / 2);
-        app.style.transform = 'translate(' + left + 'px,' + top + 'px) scale(' + scale + ')';
-    }
-
-    function scheduleFit() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(fitApp, 60);
-    }
-
-    if (window.addEventListener) {
-        window.addEventListener('resize', scheduleFit, false);
-        window.addEventListener('orientationchange', scheduleFit, false);
-    }
-    setTimeout(fitApp, 0);
-    setTimeout(fitApp, 250);
-    setTimeout(fitApp, 800);
+    var drawCount = 0;
 
     function bindAction(element, action) {
         var el = typeof element === 'string' ? document.querySelector(element) : element;
@@ -81,6 +60,20 @@
         return names;
     }
 
+    function removeNameFromList(name) {
+        var names = parseNames();
+        var key = name.toLowerCase();
+        var i;
+        for (i = 0; i < names.length; i++) {
+            if (names[i].toLowerCase() === key) {
+                names.splice(i, 1);
+                break;
+            }
+        }
+        nameList.value = names.join('\n');
+        updateCount();
+    }
+
     function updateCount() {
         var names = parseNames();
         countBadge.innerHTML = names.length + (names.length > 1 ? ' noms' : ' nom');
@@ -89,6 +82,22 @@
 
     function updateDuration() {
         durationValue.innerHTML = durationRange.value;
+    }
+
+    function updateCounterDisplay() {
+        drawCounterValue.innerHTML = drawCount;
+        drawCounter.hidden = !showCounterToggle.checked;
+    }
+
+    function persistOptions() {
+        try {
+            localStorage.setItem('randomizer_remove_drawn', removeDrawnToggle.checked ? '1' : '0');
+            localStorage.setItem('randomizer_show_counter', showCounterToggle.checked ? '1' : '0');
+        } catch (e) {}
+    }
+
+    function persistDrawCount() {
+        try { localStorage.setItem('randomizer_draw_count', String(drawCount)); } catch (e) {}
     }
 
     function chooseRandom(names) {
@@ -136,6 +145,15 @@
         isRolling = false;
         drawButton.disabled = false;
         launchConfetti();
+
+        drawCount += 1;
+        updateCounterDisplay();
+        persistDrawCount();
+
+        if (removeDrawnToggle.checked) {
+            removeNameFromList(name);
+        }
+
         setTimeout(function() {
             resultName.className = '';
         }, 600);
@@ -144,9 +162,10 @@
     function launchConfetti() {
         var colors = ['#2563eb', '#34c768', '#f5a623', '#f46274', '#9c7bff', '#f170b0'];
         var resultCard = document.getElementById('resultCard');
-        var rect = resultCard ? { left: resultCard.offsetLeft, top: resultCard.offsetTop, width: resultCard.offsetWidth, height: resultCard.offsetHeight } : { left: 0, top: 0, width: BASE_W, height: BASE_H };
-        var centerX = rect.left + rect.width / 2;
-        var centerY = rect.top + rect.height / 2;
+        var layerRect = confettiLayer.getBoundingClientRect();
+        var cardRect = resultCard ? resultCard.getBoundingClientRect() : layerRect;
+        var centerX = (cardRect.left - layerRect.left) + cardRect.width / 2;
+        var centerY = (cardRect.top - layerRect.top) + cardRect.height / 2;
         var i, c, angle, distance, dx, dy, rot;
         confettiLayer.innerHTML = '';
         for (i = 0; i < 52; i++) {
@@ -182,6 +201,11 @@
     bindAction(btnImport, function() {
         if (fileImport && fileImport.click) { fileImport.click(); }
     });
+    bindAction(btnResetCounter, function() {
+        drawCount = 0;
+        updateCounterDisplay();
+        persistDrawCount();
+    });
 
     if (nameList.addEventListener) {
         nameList.addEventListener('input', updateCount, false);
@@ -191,6 +215,17 @@
     if (durationRange.addEventListener) {
         durationRange.addEventListener('input', updateDuration, false);
         durationRange.addEventListener('change', updateDuration, false);
+    }
+
+    if (removeDrawnToggle.addEventListener) {
+        removeDrawnToggle.addEventListener('change', persistOptions, false);
+    }
+
+    if (showCounterToggle.addEventListener) {
+        showCounterToggle.addEventListener('change', function() {
+            persistOptions();
+            updateCounterDisplay();
+        }, false);
     }
 
     if (fileImport.addEventListener) {
@@ -214,8 +249,12 @@
         if (saved) {
             nameList.value = saved;
         }
+        removeDrawnToggle.checked = localStorage.getItem('randomizer_remove_drawn') === '1';
+        showCounterToggle.checked = localStorage.getItem('randomizer_show_counter') === '1';
+        drawCount = parseInt(localStorage.getItem('randomizer_draw_count'), 10) || 0;
     } catch (e) {}
 
     updateCount();
     updateDuration();
+    updateCounterDisplay();
 })();
