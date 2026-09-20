@@ -1,8 +1,6 @@
 (function() {
-    var BASE_W = 860;
-    var BASE_H = 480;
-    var app = document.getElementById('app');
-    var viewport = document.getElementById('viewport');
+    var HISTORY_LIMIT = 10;
+
     var nameList = document.getElementById('nameList');
     var countBadge = document.getElementById('countBadge');
     var drawButton = document.getElementById('drawButton');
@@ -14,30 +12,14 @@
     var fileImport = document.getElementById('fileImport');
     var btnClear = document.getElementById('btnClear');
     var confettiLayer = document.getElementById('confettiLayer');
+    var removeDrawnToggle = document.getElementById('removeDrawnToggle');
+    var showHistoryToggle = document.getElementById('showHistoryToggle');
+    var confettiToggle = document.getElementById('confettiToggle');
+    var historyPanel = document.getElementById('historyPanel');
+    var historyList = document.getElementById('historyList');
+    var btnClearHistory = document.getElementById('btnClearHistory');
     var isRolling = false;
-    var resizeTimer = null;
-
-    function fitApp() {
-        var w = viewport.clientWidth || window.innerWidth || BASE_W;
-        var h = viewport.clientHeight || window.innerHeight || BASE_H;
-        var scale = Math.min(w / BASE_W, h / BASE_H);
-        var left = Math.max(0, (w - BASE_W * scale) / 2);
-        var top = Math.max(0, (h - BASE_H * scale) / 2);
-        app.style.transform = 'translate(' + left + 'px,' + top + 'px) scale(' + scale + ')';
-    }
-
-    function scheduleFit() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(fitApp, 60);
-    }
-
-    if (window.addEventListener) {
-        window.addEventListener('resize', scheduleFit, false);
-        window.addEventListener('orientationchange', scheduleFit, false);
-    }
-    setTimeout(fitApp, 0);
-    setTimeout(fitApp, 250);
-    setTimeout(fitApp, 800);
+    var history = [];
 
     function bindAction(element, action) {
         var el = typeof element === 'string' ? document.querySelector(element) : element;
@@ -81,6 +63,20 @@
         return names;
     }
 
+    function removeNameFromList(name) {
+        var names = parseNames();
+        var key = name.toLowerCase();
+        var i;
+        for (i = 0; i < names.length; i++) {
+            if (names[i].toLowerCase() === key) {
+                names.splice(i, 1);
+                break;
+            }
+        }
+        nameList.value = names.join('\n');
+        updateCount();
+    }
+
     function updateCount() {
         var names = parseNames();
         countBadge.innerHTML = names.length + (names.length > 1 ? ' noms' : ' nom');
@@ -89,6 +85,62 @@
 
     function updateDuration() {
         durationValue.innerHTML = durationRange.value;
+    }
+
+    function persistOptions() {
+        try {
+            localStorage.setItem('randomizer_remove_drawn', removeDrawnToggle.checked ? '1' : '0');
+            localStorage.setItem('randomizer_show_history', showHistoryToggle.checked ? '1' : '0');
+            localStorage.setItem('randomizer_confetti_enabled', confettiToggle.checked ? '1' : '0');
+        } catch (e) {}
+    }
+
+    function persistHistory() {
+        try { localStorage.setItem('randomizer_history', JSON.stringify(history)); } catch (e) {}
+    }
+
+    function formatTime(timestamp) {
+        var d = new Date(timestamp);
+        var h = d.getHours();
+        var m = d.getMinutes();
+        return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+    }
+
+    function renderHistory() {
+        historyList.innerHTML = '';
+        if (!history.length) {
+            var empty = document.createElement('li');
+            empty.className = 'historyEmpty';
+            empty.textContent = "Aucun tirage pour l'instant.";
+            historyList.appendChild(empty);
+            return;
+        }
+        var i, item, nameEl, timeEl;
+        for (i = 0; i < history.length; i++) {
+            item = document.createElement('li');
+            nameEl = document.createElement('span');
+            nameEl.className = 'historyName';
+            nameEl.textContent = history[i].name;
+            timeEl = document.createElement('span');
+            timeEl.className = 'historyTime';
+            timeEl.textContent = formatTime(history[i].time);
+            item.appendChild(nameEl);
+            item.appendChild(timeEl);
+            historyList.appendChild(item);
+        }
+    }
+
+    function addHistoryEntry(name) {
+        history.unshift({ name: name, time: new Date().getTime() });
+        if (history.length > HISTORY_LIMIT) {
+            history.length = HISTORY_LIMIT;
+        }
+        persistHistory();
+        renderHistory();
+    }
+
+    function updateHistoryVisibility() {
+        historyPanel.hidden = !showHistoryToggle.checked;
     }
 
     function chooseRandom(names) {
@@ -135,7 +187,16 @@
         statusText.innerHTML = 'Résultat du tirage';
         isRolling = false;
         drawButton.disabled = false;
-        launchConfetti();
+        if (confettiToggle.checked) {
+            launchConfetti();
+        }
+
+        addHistoryEntry(name);
+
+        if (removeDrawnToggle.checked) {
+            removeNameFromList(name);
+        }
+
         setTimeout(function() {
             resultName.className = '';
         }, 600);
@@ -144,30 +205,46 @@
     function launchConfetti() {
         var colors = ['#2563eb', '#34c768', '#f5a623', '#f46274', '#9c7bff', '#f170b0'];
         var resultCard = document.getElementById('resultCard');
-        var rect = resultCard ? { left: resultCard.offsetLeft, top: resultCard.offsetTop, width: resultCard.offsetWidth, height: resultCard.offsetHeight } : { left: 0, top: 0, width: BASE_W, height: BASE_H };
-        var centerX = rect.left + rect.width / 2;
-        var centerY = rect.top + rect.height / 2;
-        var i, c, angle, distance, dx, dy, rot;
+        var layerRect = confettiLayer.getBoundingClientRect();
+        var cardRect = resultCard ? resultCard.getBoundingClientRect() : layerRect;
+        var centerX = (cardRect.left - layerRect.left) + cardRect.width / 2;
+        var centerY = (cardRect.top - layerRect.top) + cardRect.height / 2;
+        var count = 60;
+        var i, c, angle, peakDistance, peakX, peakY, dx, dy, rot, size, duration, delay;
         confettiLayer.innerHTML = '';
-        for (i = 0; i < 52; i++) {
+        for (i = 0; i < count; i++) {
             c = document.createElement('div');
-            c.className = 'confetti';
-            angle = Math.random() * Math.PI * 2;
-            distance = 120 + Math.random() * 230;
-            dx = Math.cos(angle) * distance;
-            dy = Math.sin(angle) * distance + 80;
-            rot = (Math.random() * 720 - 360) + 'deg';
+            c.className = 'confetti ' + (Math.random() < 0.5 ? 'round' : 'square');
+
+            // Upward burst that then falls, like a firework arc.
+            angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.15;
+            peakDistance = 55 + Math.random() * 95;
+            peakX = Math.cos(angle) * peakDistance;
+            peakY = Math.sin(angle) * peakDistance;
+            dx = peakX + (Math.random() - 0.5) * 70;
+            dy = peakY + 170 + Math.random() * 150;
+            rot = (Math.random() * 620 - 310) + 'deg';
+            size = 7 + Math.random() * 7;
+            duration = 1200 + Math.random() * 500;
+            delay = Math.random() * 160;
+
             c.style.left = centerX + 'px';
             c.style.top = centerY + 'px';
+            c.style.width = size + 'px';
+            c.style.height = (size * 1.4) + 'px';
             c.style.background = colors[i % colors.length];
+            c.style.setProperty('--peakX', peakX + 'px');
+            c.style.setProperty('--peakY', peakY + 'px');
             c.style.setProperty('--dx', dx + 'px');
             c.style.setProperty('--dy', dy + 'px');
             c.style.setProperty('--rot', rot);
+            c.style.animationDuration = duration + 'ms';
+            c.style.animationDelay = delay + 'ms';
             confettiLayer.appendChild(c);
         }
         setTimeout(function() {
             confettiLayer.innerHTML = '';
-        }, 1300);
+        }, 2100);
     }
 
     bindAction(drawButton, startDraw);
@@ -182,6 +259,11 @@
     bindAction(btnImport, function() {
         if (fileImport && fileImport.click) { fileImport.click(); }
     });
+    bindAction(btnClearHistory, function() {
+        history = [];
+        persistHistory();
+        renderHistory();
+    });
 
     if (nameList.addEventListener) {
         nameList.addEventListener('input', updateCount, false);
@@ -191,6 +273,21 @@
     if (durationRange.addEventListener) {
         durationRange.addEventListener('input', updateDuration, false);
         durationRange.addEventListener('change', updateDuration, false);
+    }
+
+    if (removeDrawnToggle.addEventListener) {
+        removeDrawnToggle.addEventListener('change', persistOptions, false);
+    }
+
+    if (showHistoryToggle.addEventListener) {
+        showHistoryToggle.addEventListener('change', function() {
+            persistOptions();
+            updateHistoryVisibility();
+        }, false);
+    }
+
+    if (confettiToggle.addEventListener) {
+        confettiToggle.addEventListener('change', persistOptions, false);
     }
 
     if (fileImport.addEventListener) {
@@ -214,8 +311,19 @@
         if (saved) {
             nameList.value = saved;
         }
+        removeDrawnToggle.checked = localStorage.getItem('randomizer_remove_drawn') === '1';
+        var savedShowHistory = localStorage.getItem('randomizer_show_history');
+        showHistoryToggle.checked = savedShowHistory === null ? true : savedShowHistory === '1';
+        var savedConfetti = localStorage.getItem('randomizer_confetti_enabled');
+        confettiToggle.checked = savedConfetti === null ? true : savedConfetti === '1';
+        var savedHistory = localStorage.getItem('randomizer_history');
+        if (savedHistory) {
+            history = JSON.parse(savedHistory) || [];
+        }
     } catch (e) {}
 
     updateCount();
     updateDuration();
+    updateHistoryVisibility();
+    renderHistory();
 })();

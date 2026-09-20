@@ -3,66 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Randomizer - Tirage au sort</title>
     <meta name="description" content="Tirage au sort de noms avec liste importable, durée réglable et confettis.">
     <link rel="icon" href="icon.png">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div id="viewport">
-        <div id="app" aria-label="Randomizer de tirage au sort">
-            <div id="confettiLayer" aria-hidden="true"></div>
+    <div id="app" aria-label="Randomizer de tirage au sort">
+        <div id="confettiLayer" aria-hidden="true"></div>
 
-            <header class="topbar">
-                <div class="brand">
-                    <div class="logoDice" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
-                    <div>
-                        <h1>Randomizer</h1>
-                        <p>Tirage au sort tactile</p>
-                    </div>
+        <header class="topbar">
+            <div class="brand">
+                <div class="logoDice" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+                <div>
+                    <h1>Randomizer</h1>
+                    <p>Tirage au sort tactile</p>
                 </div>
-                <div class="topActions">
-                    <button type="button" id="btnImport" class="softButton">Importer .txt</button>
-                    <input type="file" id="fileImport" accept=".txt,.csv,text/plain" style="display:none">
-                    <button type="button" id="btnClear" class="softButton danger">Vider</button>
+            </div>
+            <div class="topActions">
+                <button type="button" id="btnImport" class="softButton">Importer .txt</button>
+                <input type="file" id="fileImport" accept=".txt,.csv,text/plain" style="display:none">
+                <button type="button" id="btnClear" class="softButton danger">Vider</button>
+            </div>
+        </header>
+
+        <section class="optionsBar">
+            <label class="optionToggle">
+                <input type="checkbox" id="removeDrawnToggle">
+                <span>Retirer le nom tiré de la liste</span>
+            </label>
+            <label class="optionToggle">
+                <input type="checkbox" id="showHistoryToggle" checked>
+                <span>Afficher l'historique</span>
+            </label>
+            <label class="optionToggle">
+                <input type="checkbox" id="confettiToggle" checked>
+                <span>Effets visuels (confettis)</span>
+            </label>
+        </section>
+
+        <main class="layout">
+            <section class="panel listPanel">
+                <div class="panelHeader">
+                    <h2>Liste</h2>
+                    <span id="countBadge">0 nom</span>
                 </div>
-            </header>
+                <textarea id="nameList" spellcheck="false" placeholder="Colle ou importe une liste ici :&#10;Alice&#10;Bilal&#10;Chloé&#10;Noah"></textarea>
+                <p class="hint">Un nom par ligne. Les virgules et points-virgules fonctionnent aussi.</p>
+            </section>
 
-            <main class="layout">
-                <section class="panel listPanel">
-                    <div class="panelHeader">
-                        <h2>Liste</h2>
-                        <span id="countBadge">0 nom</span>
-                    </div>
-                    <textarea id="nameList" spellcheck="false" placeholder="Colle ou importe une liste ici :&#10;Alice&#10;Bilal&#10;Chloé&#10;Noah"></textarea>
-                    <p class="hint">Un nom par ligne. Les virgules et points-virgules fonctionnent aussi.</p>
-                </section>
+            <section class="panel drawPanel">
+                <div id="resultCard">
+                    <div id="statusText" aria-live="polite">Ajoute une liste, puis lance le tirage.</div>
+                    <div id="resultName" aria-live="off">—</div>
+                </div>
 
-                <section class="panel drawPanel">
-                    <div id="resultCard">
-                        <div id="statusText">Ajoute une liste, puis lance le tirage.</div>
-                        <div id="resultName">—</div>
-                    </div>
+                <div class="controls">
+                    <button type="button" id="drawButton" class="drawButton" aria-label="Lancer le tirage au sort">
+                        <span class="dieButton" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+                        <span>Lancer</span>
+                    </button>
 
-                    <div class="controls">
-                        <button type="button" id="drawButton" class="drawButton" aria-label="Lancer le tirage au sort">
-                            <span class="dieButton" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
-                            <span>Lancer</span>
-                        </button>
-
-                        <div class="speedBox">
-                            <div class="speedHeader">
-                                <label for="durationRange">Durée du tirage</label>
-                                <strong><span id="durationValue">5</span> s</strong>
-                            </div>
-                            <input id="durationRange" type="range" min="3" max="7" value="5" step="1">
-                            <div class="rangeLabels"><span>3 s</span><span>7 s</span></div>
+                    <div class="speedBox">
+                        <div class="speedHeader">
+                            <label for="durationRange">Durée du tirage</label>
+                            <strong><span id="durationValue">5</span> s</strong>
                         </div>
+                        <input id="durationRange" type="range" min="3" max="7" value="5" step="1">
+                        <div class="rangeLabels"><span>3 s</span><span>7 s</span></div>
                     </div>
-                </section>
-            </main>
-        </div>
+                </div>
+            </section>
+
+            <aside class="panel historyPanel" id="historyPanel">
+                <div class="panelHeader">
+                    <h2>Derniers tirages</h2>
+                    <button type="button" id="btnClearHistory" class="linkButton">Effacer</button>
+                </div>
+                <ol id="historyList" class="historyList">
+                    <li class="historyEmpty">Aucun tirage pour l'instant.</li>
+                </ol>
+            </aside>
+        </main>
+
+        <footer class="appFooter">
+            Un outil de la <a href="https://prim76.ac-normandie.fr/numerique" target="_blank" rel="noopener">Mission numérique 76</a> développé par Etienne Liaudet
+        </footer>
     </div>
 
     <script src="scripts/randomizer.js"></script>
