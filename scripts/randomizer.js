@@ -24,6 +24,10 @@
     var btnClearHistory = document.getElementById('btnClearHistory');
     var tabButtons = document.querySelectorAll('.tabButton');
     var tabPanels = document.querySelectorAll('.tabPanel');
+    var notifBanner = document.getElementById('notifBanner');
+    var btnFullscreen = document.getElementById('btnFullscreen');
+    var appEl = document.getElementById('app');
+    var notifTimer = null;
 
     var diceCountRow = document.getElementById('diceCountRow');
     var diceSidesRow = document.getElementById('diceSidesRow');
@@ -97,6 +101,83 @@
             switchTab(this.getAttribute('data-tab'));
         });
     }
+
+    // ---- Notifications ----
+
+    function notify(message, type) {
+        clearTimeout(notifTimer);
+        notifBanner.textContent = message;
+        notifBanner.className = 'notifBanner visible' + (type ? ' ' + type : '');
+        notifTimer = setTimeout(function() {
+            notifBanner.classList.remove('visible');
+        }, 2600);
+    }
+
+    // ---- Fullscreen ----
+
+    function isFullscreenActive() {
+        return !!document.fullscreenElement || appEl.classList.contains('fakeFullscreen');
+    }
+
+    function updateFullscreenIcon() {
+        var active = isFullscreenActive();
+        btnFullscreen.querySelector('.iconExpand').hidden = active;
+        btnFullscreen.querySelector('.iconCompress').hidden = !active;
+        btnFullscreen.title = active ? 'Quitter le plein écran (F)' : 'Plein écran (F)';
+        btnFullscreen.setAttribute('aria-label', btnFullscreen.title);
+    }
+
+    function toggleFullscreen() {
+        if (isFullscreenActive()) {
+            if (document.fullscreenElement && document.exitFullscreen) {
+                document.exitFullscreen();
+            } else {
+                appEl.classList.remove('fakeFullscreen');
+                updateFullscreenIcon();
+            }
+            return;
+        }
+        if (appEl.requestFullscreen) {
+            appEl.requestFullscreen().catch(function() {
+                appEl.classList.add('fakeFullscreen');
+                updateFullscreenIcon();
+            });
+        } else {
+            appEl.classList.add('fakeFullscreen');
+            updateFullscreenIcon();
+        }
+    }
+
+    bindAction(btnFullscreen, toggleFullscreen);
+    document.addEventListener('fullscreenchange', updateFullscreenIcon, false);
+
+    // ---- Keyboard shortcuts ----
+
+    document.addEventListener('keydown', function(e) {
+        var tag = document.activeElement ? document.activeElement.tagName : '';
+        var isTyping = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+
+        if (e.key === 'Escape' && isFullscreenActive()) {
+            toggleFullscreen();
+            return;
+        }
+
+        if (isTyping || tag === 'BUTTON') { return; }
+
+        if (e.key === ' ' || e.key === 'Spacebar' || e.key === 'Enter') {
+            var activeTabBtn = document.querySelector('.tabButton.active');
+            var activeTab = activeTabBtn ? activeTabBtn.getAttribute('data-tab') : 'names';
+            e.preventDefault();
+            if (activeTab === 'dice') {
+                startDiceRoll();
+            } else {
+                startDraw();
+            }
+        } else if (e.key === 'f' || e.key === 'F') {
+            e.preventDefault();
+            toggleFullscreen();
+        }
+    }, false);
 
     // ---- Names ----
 
@@ -260,6 +341,27 @@
         }
     }
 
+    function createDroppingTiles(count) {
+        diceFaces.innerHTML = '';
+        var tiles = [];
+        var i, tile;
+        for (i = 0; i < count; i++) {
+            tile = document.createElement('div');
+            tile.className = 'dieFace style-' + diceStyle + ' dropping';
+            tile.style.animationDelay = (i * 70) + 'ms';
+            diceFaces.appendChild(tile);
+            tiles.push(tile);
+        }
+        return tiles;
+    }
+
+    function updateTiles(tiles, values) {
+        var i;
+        for (i = 0; i < tiles.length; i++) {
+            tiles[i].innerHTML = buildFaceInner(values[i], diceStyle);
+        }
+    }
+
     function renderDicePlaceholders(count) {
         var placeholderValue = diceStyle === 'digits' ? '–' : 0;
         var values = [];
@@ -378,6 +480,8 @@
         var sides = diceSidesValue;
         var count = diceCount;
         var finalValues = rollValues(count, sides);
+        var tiles = createDroppingTiles(count);
+        updateTiles(tiles, rollValues(count, sides));
         var duration = 700;
         var start = new Date().getTime();
 
@@ -386,18 +490,23 @@
             var elapsed = now - start;
             var progress = elapsed / duration;
             if (progress >= 1) {
-                finishDiceRoll(finalValues, sides);
+                finishDiceRoll(finalValues, sides, tiles);
                 return;
             }
-            renderDiceFaces(rollValues(count, sides), true);
+            updateTiles(tiles, rollValues(count, sides));
             var delay = 40 + Math.pow(progress, 2) * 110;
             setTimeout(tick, delay);
         }
-        tick();
+        setTimeout(tick, 90);
     }
 
-    function finishDiceRoll(values, sides) {
-        renderDiceFaces(values, false);
+    function finishDiceRoll(values, sides, tiles) {
+        updateTiles(tiles, values);
+        var i;
+        for (i = 0; i < tiles.length; i++) {
+            tiles[i].classList.remove('dropping');
+            tiles[i].classList.add('landed');
+        }
         isDiceRolling = false;
         diceRollButton.disabled = false;
 
@@ -552,6 +661,7 @@
         resultName.innerHTML = '—';
         statusText.innerHTML = 'Ajoute une liste, puis lance le tirage.';
         try { localStorage.removeItem('randomizer_names'); } catch (e) {}
+        notify('Liste vidée.', 'info');
     });
     bindAction(btnImport, function() {
         if (fileImport && fileImport.click) { fileImport.click(); }
@@ -560,6 +670,7 @@
         history = [];
         persistHistory();
         renderHistory();
+        notify('Historique effacé.', 'info');
     });
 
     if (nameList.addEventListener) {
@@ -597,6 +708,7 @@
                 updateCount();
                 statusText.innerHTML = 'Liste importée. Prêt pour le tirage.';
                 resultName.innerHTML = '—';
+                notify('Liste importée avec succès.', 'success');
             };
             reader.readAsText(file, 'UTF-8');
             fileImport.value = '';
@@ -647,4 +759,5 @@
     buildCountRow();
     renderDicePlaceholders(diceCount);
     switchTab(initialTab);
+    updateFullscreenIcon();
 })();

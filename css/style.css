@@ -43,6 +43,80 @@ body {
     display: flex;
     flex-direction: column;
     gap: 14px;
+    overflow-y: auto;
+}
+
+#app:fullscreen,
+#app.fakeFullscreen {
+    max-width: none;
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    justify-content: center;
+}
+
+#app.fakeFullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    background: linear-gradient(180deg, #fbfdff 0%, #f0f6fd 58%, #e6eef9 100%);
+}
+
+.notifBanner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 70;
+    padding: 12px 20px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    color: #fff;
+    background: linear-gradient(135deg, #2563eb, #1f59dd);
+    border-radius: clamp(14px, 2vw, 26px) clamp(14px, 2vw, 26px) 0 0;
+    transform: translateY(-120%);
+    transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+    pointer-events: none;
+}
+
+.notifBanner.visible {
+    transform: translateY(0);
+}
+
+.notifBanner.success {
+    background: linear-gradient(135deg, #34c768, #1fa653);
+}
+
+.notifBanner.error {
+    background: linear-gradient(135deg, #f46274, #d9304a);
+}
+
+.btnIcon {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    color: #2563eb;
+    background: linear-gradient(180deg, #ffffff, #e9f2fb);
+    border: 2px solid #9eb8d3;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btnIcon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.btnIcon:hover,
+.btnIcon:focus {
+    border-color: #2563eb;
+    outline: none;
 }
 
 .topbar {
@@ -436,6 +510,27 @@ h1 {
 
 .dieFace.rolling {
     animation: dieShake .3s ease-in-out infinite;
+}
+
+.dieFace.dropping {
+    animation: dieDrop 550ms cubic-bezier(.34, 1.56, .64, 1) both;
+}
+
+.dieFace.landed {
+    animation: dieLanded .4s ease-out;
+}
+
+@keyframes dieDrop {
+    0% { transform: translateY(-90px) scale(.7); opacity: 0; }
+    55% { transform: translateY(6px) scale(1.05); opacity: 1; }
+    75% { transform: translateY(-4px) scale(.98); }
+    100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes dieLanded {
+    0% { transform: scale(.88); }
+    60% { transform: scale(1.08); }
+    100% { transform: scale(1); }
 }
 
 .pipGrid {
