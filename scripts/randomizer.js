@@ -286,6 +286,10 @@
         }, false);
     }
 
+    if (confettiToggle.addEventListener) {
+        confettiToggle.addEventListener('change', persistOptions, false);
+    }
+
     if (fileImport.addEventListener) {
         fileImport.addEventListener('change', function() {
             var file = fileImport.files && fileImport.files[0];
@@ -310,6 +314,8 @@
         removeDrawnToggle.checked = localStorage.getItem('randomizer_remove_drawn') === '1';
         var savedShowHistory = localStorage.getItem('randomizer_show_history');
         showHistoryToggle.checked = savedShowHistory === null ? true : savedShowHistory === '1';
+        var savedConfetti = localStorage.getItem('randomizer_confetti_enabled');
+        confettiToggle.checked = savedConfetti === null ? true : savedConfetti === '1';
         var savedHistory = localStorage.getItem('randomizer_history');
         if (savedHistory) {
             history = JSON.parse(savedHistory) || [];
