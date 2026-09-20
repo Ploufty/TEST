@@ -169,25 +169,6 @@ h1 {
     cursor: pointer;
 }
 
-.drawCounter {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-left: auto;
-    color: #12304b;
-    font-size: 14px;
-    font-weight: bold;
-}
-
-.drawCounter[hidden] {
-    display: none;
-}
-
-.drawCounter strong {
-    color: #2563eb;
-    font-size: 16px;
-}
-
 .linkButton {
     padding: 0;
     color: #58718b;
@@ -384,8 +365,7 @@ h1 {
 
 .speedBox {
     flex: 1 1 200px;
-    height: 108px;
-    padding: 20px 22px;
+    padding: 18px 22px;
     background: linear-gradient(180deg, #ffffff, #f4f9ff);
     border: 1px solid #c7d7e9;
     border-radius: 24px;
@@ -396,9 +376,9 @@ h1 {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
     color: #12304b;
-    font-size: 17px;
+    font-size: clamp(14px, 1.6vw, 17px);
     font-weight: bold;
 }
 
@@ -434,21 +414,102 @@ h1 {
 .confetti {
     position: absolute;
     width: 10px;
-    height: 16px;
-    border-radius: 3px;
+    height: 14px;
     opacity: 0;
-    animation: confettiFall 1100ms ease-out forwards;
+    animation-name: confettiFall;
+    animation-timing-function: cubic-bezier(.22, .68, .32, 1);
+    animation-fill-mode: forwards;
+}
+
+.confetti.round {
+    border-radius: 50%;
+}
+
+.confetti.square {
+    border-radius: 3px;
 }
 
 @keyframes confettiFall {
     0% {
+        opacity: 0;
+        transform: translate(0, 0) rotate(0deg) scale(.4);
+    }
+    12% {
         opacity: 1;
-        transform: translate(0, 0) rotate(0deg) scale(1);
+        transform: translate(calc(var(--peakX) * 0.35), calc(var(--peakY) * 0.7)) rotate(calc(var(--rot) * 0.3)) scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: translate(var(--peakX), var(--peakY)) rotate(calc(var(--rot) * 0.6)) scale(1);
     }
     100% {
         opacity: 0;
-        transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(.9);
+        transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(.7);
     }
+}
+
+.historyPanel {
+    flex: 1 1 220px;
+    min-width: 200px;
+    max-width: 260px;
+    display: flex;
+    flex-direction: column;
+}
+
+.historyPanel[hidden] {
+    display: none;
+}
+
+.historyList {
+    flex: 1 1 auto;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-y: auto;
+    max-height: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.historyList li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 12px;
+    background: linear-gradient(180deg, #ffffff, #f7fbff);
+    border: 1px solid #d3e0ee;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #12304b;
+}
+
+.historyList li:first-child {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.10);
+}
+
+.historyList .historyName {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.historyList .historyTime {
+    flex: 0 0 auto;
+    color: #8298b3;
+    font-weight: normal;
+    font-size: 11px;
+}
+
+.historyEmpty {
+    color: #8298b3;
+    font-weight: normal;
+    font-style: italic;
+    justify-content: center;
+    text-align: center;
 }
 
 .appFooter {
@@ -476,10 +537,8 @@ h1 {
         flex-direction: column;
         text-align: center;
     }
-    .drawCounter {
-        margin-left: 0;
-        width: 100%;
-        justify-content: center;
+    .historyPanel {
+        max-width: none;
     }
     .controls {
         justify-content: center;

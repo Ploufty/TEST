@@ -34,13 +34,13 @@
                 <span>Retirer le nom tiré de la liste</span>
             </label>
             <label class="optionToggle">
-                <input type="checkbox" id="showCounterToggle">
-                <span>Afficher le compteur de tirages</span>
+                <input type="checkbox" id="showHistoryToggle" checked>
+                <span>Afficher l'historique</span>
             </label>
-            <div id="drawCounter" class="drawCounter" hidden>
-                <span>Tirages : <strong id="drawCounterValue">0</strong></span>
-                <button type="button" id="btnResetCounter" class="linkButton">Réinitialiser</button>
-            </div>
+            <label class="optionToggle">
+                <input type="checkbox" id="confettiToggle" checked>
+                <span>Effets visuels (confettis)</span>
+            </label>
         </section>
 
         <main class="layout">
@@ -75,6 +75,16 @@
                     </div>
                 </div>
             </section>
+
+            <aside class="panel historyPanel" id="historyPanel">
+                <div class="panelHeader">
+                    <h2>Derniers tirages</h2>
+                    <button type="button" id="btnClearHistory" class="linkButton">Effacer</button>
+                </div>
+                <ol id="historyList" class="historyList">
+                    <li class="historyEmpty">Aucun tirage pour l'instant.</li>
+                </ol>
+            </aside>
         </main>
 
         <footer class="appFooter">

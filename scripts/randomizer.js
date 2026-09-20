@@ -1,4 +1,6 @@
 (function() {
+    var HISTORY_LIMIT = 10;
+
     var nameList = document.getElementById('nameList');
     var countBadge = document.getElementById('countBadge');
     var drawButton = document.getElementById('drawButton');
@@ -11,12 +13,13 @@
     var btnClear = document.getElementById('btnClear');
     var confettiLayer = document.getElementById('confettiLayer');
     var removeDrawnToggle = document.getElementById('removeDrawnToggle');
-    var showCounterToggle = document.getElementById('showCounterToggle');
-    var drawCounter = document.getElementById('drawCounter');
-    var drawCounterValue = document.getElementById('drawCounterValue');
-    var btnResetCounter = document.getElementById('btnResetCounter');
+    var showHistoryToggle = document.getElementById('showHistoryToggle');
+    var confettiToggle = document.getElementById('confettiToggle');
+    var historyPanel = document.getElementById('historyPanel');
+    var historyList = document.getElementById('historyList');
+    var btnClearHistory = document.getElementById('btnClearHistory');
     var isRolling = false;
-    var drawCount = 0;
+    var history = [];
 
     function bindAction(element, action) {
         var el = typeof element === 'string' ? document.querySelector(element) : element;
@@ -84,20 +87,60 @@
         durationValue.innerHTML = durationRange.value;
     }
 
-    function updateCounterDisplay() {
-        drawCounterValue.innerHTML = drawCount;
-        drawCounter.hidden = !showCounterToggle.checked;
-    }
-
     function persistOptions() {
         try {
             localStorage.setItem('randomizer_remove_drawn', removeDrawnToggle.checked ? '1' : '0');
-            localStorage.setItem('randomizer_show_counter', showCounterToggle.checked ? '1' : '0');
+            localStorage.setItem('randomizer_show_history', showHistoryToggle.checked ? '1' : '0');
+            localStorage.setItem('randomizer_confetti_enabled', confettiToggle.checked ? '1' : '0');
         } catch (e) {}
     }
 
-    function persistDrawCount() {
-        try { localStorage.setItem('randomizer_draw_count', String(drawCount)); } catch (e) {}
+    function persistHistory() {
+        try { localStorage.setItem('randomizer_history', JSON.stringify(history)); } catch (e) {}
+    }
+
+    function formatTime(timestamp) {
+        var d = new Date(timestamp);
+        var h = d.getHours();
+        var m = d.getMinutes();
+        return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+    }
+
+    function renderHistory() {
+        historyList.innerHTML = '';
+        if (!history.length) {
+            var empty = document.createElement('li');
+            empty.className = 'historyEmpty';
+            empty.textContent = "Aucun tirage pour l'instant.";
+            historyList.appendChild(empty);
+            return;
+        }
+        var i, item, nameEl, timeEl;
+        for (i = 0; i < history.length; i++) {
+            item = document.createElement('li');
+            nameEl = document.createElement('span');
+            nameEl.className = 'historyName';
+            nameEl.textContent = history[i].name;
+            timeEl = document.createElement('span');
+            timeEl.className = 'historyTime';
+            timeEl.textContent = formatTime(history[i].time);
+            item.appendChild(nameEl);
+            item.appendChild(timeEl);
+            historyList.appendChild(item);
+        }
+    }
+
+    function addHistoryEntry(name) {
+        history.unshift({ name: name, time: new Date().getTime() });
+        if (history.length > HISTORY_LIMIT) {
+            history.length = HISTORY_LIMIT;
+        }
+        persistHistory();
+        renderHistory();
+    }
+
+    function updateHistoryVisibility() {
+        historyPanel.hidden = !showHistoryToggle.checked;
     }
 
     function chooseRandom(names) {
@@ -144,11 +187,11 @@
         statusText.innerHTML = 'Résultat du tirage';
         isRolling = false;
         drawButton.disabled = false;
-        launchConfetti();
+        if (confettiToggle.checked) {
+            launchConfetti();
+        }
 
-        drawCount += 1;
-        updateCounterDisplay();
-        persistDrawCount();
+        addHistoryEntry(name);
 
         if (removeDrawnToggle.checked) {
             removeNameFromList(name);
@@ -166,27 +209,42 @@
         var cardRect = resultCard ? resultCard.getBoundingClientRect() : layerRect;
         var centerX = (cardRect.left - layerRect.left) + cardRect.width / 2;
         var centerY = (cardRect.top - layerRect.top) + cardRect.height / 2;
-        var i, c, angle, distance, dx, dy, rot;
+        var count = 60;
+        var i, c, angle, peakDistance, peakX, peakY, dx, dy, rot, size, duration, delay;
         confettiLayer.innerHTML = '';
-        for (i = 0; i < 52; i++) {
+        for (i = 0; i < count; i++) {
             c = document.createElement('div');
-            c.className = 'confetti';
-            angle = Math.random() * Math.PI * 2;
-            distance = 120 + Math.random() * 230;
-            dx = Math.cos(angle) * distance;
-            dy = Math.sin(angle) * distance + 80;
-            rot = (Math.random() * 720 - 360) + 'deg';
+            c.className = 'confetti ' + (Math.random() < 0.5 ? 'round' : 'square');
+
+            // Upward burst that then falls, like a firework arc.
+            angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.15;
+            peakDistance = 55 + Math.random() * 95;
+            peakX = Math.cos(angle) * peakDistance;
+            peakY = Math.sin(angle) * peakDistance;
+            dx = peakX + (Math.random() - 0.5) * 70;
+            dy = peakY + 170 + Math.random() * 150;
+            rot = (Math.random() * 620 - 310) + 'deg';
+            size = 7 + Math.random() * 7;
+            duration = 1200 + Math.random() * 500;
+            delay = Math.random() * 160;
+
             c.style.left = centerX + 'px';
             c.style.top = centerY + 'px';
+            c.style.width = size + 'px';
+            c.style.height = (size * 1.4) + 'px';
             c.style.background = colors[i % colors.length];
+            c.style.setProperty('--peakX', peakX + 'px');
+            c.style.setProperty('--peakY', peakY + 'px');
             c.style.setProperty('--dx', dx + 'px');
             c.style.setProperty('--dy', dy + 'px');
             c.style.setProperty('--rot', rot);
+            c.style.animationDuration = duration + 'ms';
+            c.style.animationDelay = delay + 'ms';
             confettiLayer.appendChild(c);
         }
         setTimeout(function() {
             confettiLayer.innerHTML = '';
-        }, 1300);
+        }, 2100);
     }
 
     bindAction(drawButton, startDraw);
@@ -201,10 +259,10 @@
     bindAction(btnImport, function() {
         if (fileImport && fileImport.click) { fileImport.click(); }
     });
-    bindAction(btnResetCounter, function() {
-        drawCount = 0;
-        updateCounterDisplay();
-        persistDrawCount();
+    bindAction(btnClearHistory, function() {
+        history = [];
+        persistHistory();
+        renderHistory();
     });
 
     if (nameList.addEventListener) {
@@ -221,10 +279,10 @@
         removeDrawnToggle.addEventListener('change', persistOptions, false);
     }
 
-    if (showCounterToggle.addEventListener) {
-        showCounterToggle.addEventListener('change', function() {
+    if (showHistoryToggle.addEventListener) {
+        showHistoryToggle.addEventListener('change', function() {
             persistOptions();
-            updateCounterDisplay();
+            updateHistoryVisibility();
         }, false);
     }
 
@@ -250,11 +308,16 @@
             nameList.value = saved;
         }
         removeDrawnToggle.checked = localStorage.getItem('randomizer_remove_drawn') === '1';
-        showCounterToggle.checked = localStorage.getItem('randomizer_show_counter') === '1';
-        drawCount = parseInt(localStorage.getItem('randomizer_draw_count'), 10) || 0;
+        var savedShowHistory = localStorage.getItem('randomizer_show_history');
+        showHistoryToggle.checked = savedShowHistory === null ? true : savedShowHistory === '1';
+        var savedHistory = localStorage.getItem('randomizer_history');
+        if (savedHistory) {
+            history = JSON.parse(savedHistory) || [];
+        }
     } catch (e) {}
 
     updateCount();
     updateDuration();
-    updateCounterDisplay();
+    updateHistoryVisibility();
+    renderHistory();
 })();
