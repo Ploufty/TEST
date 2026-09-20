@@ -1,0 +1,14 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets"
+        xmlns:ub="http://uniboard.mnemis.com/widgets"
+        id="Randomizer Tirage"
+        version="1.1"
+        width="900"
+        height="520"
+        ub:resizable="true">
+    <name>Randomizer - Tirage au sort</name>
+    <author href="" email="">L. Etienne</author>
+    <description>Tirage au sort de noms avec liste importable, durée réglable et confettis.</description>
+    <preference name="skin" value="uniboard"/>
+    <content src="index.html"/>
+</widget>
