@@ -1,5 +1,7 @@
 (function() {
     var HISTORY_LIMIT = 10;
+    var DICE_MIN = 1;
+    var DICE_MAX = 6;
 
     var nameList = document.getElementById('nameList');
     var countBadge = document.getElementById('countBadge');
@@ -13,12 +15,29 @@
     var btnClear = document.getElementById('btnClear');
     var confettiLayer = document.getElementById('confettiLayer');
     var removeDrawnToggle = document.getElementById('removeDrawnToggle');
+    var removeDrawnOption = document.getElementById('removeDrawnOption');
+    var namesTopActions = document.getElementById('namesTopActions');
     var showHistoryToggle = document.getElementById('showHistoryToggle');
     var confettiToggle = document.getElementById('confettiToggle');
     var historyPanel = document.getElementById('historyPanel');
     var historyList = document.getElementById('historyList');
     var btnClearHistory = document.getElementById('btnClearHistory');
+    var tabButtons = document.querySelectorAll('.tabButton');
+    var tabPanels = document.querySelectorAll('.tabPanel');
+
+    var diceCountValue = document.getElementById('diceCountValue');
+    var diceCountMinus = document.getElementById('diceCountMinus');
+    var diceCountPlus = document.getElementById('diceCountPlus');
+    var diceSides = document.getElementById('diceSides');
+    var diceRollButton = document.getElementById('diceRollButton');
+    var diceFaces = document.getElementById('diceFaces');
+    var diceStatusText = document.getElementById('diceStatusText');
+    var diceTotal = document.getElementById('diceTotal');
+    var diceTotalValue = document.getElementById('diceTotalValue');
+
     var isRolling = false;
+    var isDiceRolling = false;
+    var diceCount = 2;
     var history = [];
 
     function bindAction(element, action) {
@@ -45,6 +64,34 @@
         el.addEventListener('touchstart', handler, false);
         el.addEventListener('keydown', handler, false);
     }
+
+    // ---- Tabs ----
+
+    function switchTab(tabName) {
+        var i, btn, panel;
+        for (i = 0; i < tabButtons.length; i++) {
+            btn = tabButtons[i];
+            var active = btn.getAttribute('data-tab') === tabName;
+            btn.classList.toggle('active', active);
+            btn.setAttribute('aria-selected', active ? 'true' : 'false');
+        }
+        for (i = 0; i < tabPanels.length; i++) {
+            panel = tabPanels[i];
+            panel.hidden = panel.id !== 'tabPanel-' + tabName;
+        }
+        var isNames = tabName === 'names';
+        removeDrawnOption.hidden = !isNames;
+        namesTopActions.hidden = !isNames;
+        try { localStorage.setItem('randomizer_active_tab', tabName); } catch (e) {}
+    }
+
+    for (var t = 0; t < tabButtons.length; t++) {
+        bindAction(tabButtons[t], function() {
+            switchTab(this.getAttribute('data-tab'));
+        });
+    }
+
+    // ---- Names ----
 
     function parseNames() {
         var raw = nameList.value || '';
@@ -85,62 +132,6 @@
 
     function updateDuration() {
         durationValue.innerHTML = durationRange.value;
-    }
-
-    function persistOptions() {
-        try {
-            localStorage.setItem('randomizer_remove_drawn', removeDrawnToggle.checked ? '1' : '0');
-            localStorage.setItem('randomizer_show_history', showHistoryToggle.checked ? '1' : '0');
-            localStorage.setItem('randomizer_confetti_enabled', confettiToggle.checked ? '1' : '0');
-        } catch (e) {}
-    }
-
-    function persistHistory() {
-        try { localStorage.setItem('randomizer_history', JSON.stringify(history)); } catch (e) {}
-    }
-
-    function formatTime(timestamp) {
-        var d = new Date(timestamp);
-        var h = d.getHours();
-        var m = d.getMinutes();
-        return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
-    }
-
-    function renderHistory() {
-        historyList.innerHTML = '';
-        if (!history.length) {
-            var empty = document.createElement('li');
-            empty.className = 'historyEmpty';
-            empty.textContent = "Aucun tirage pour l'instant.";
-            historyList.appendChild(empty);
-            return;
-        }
-        var i, item, nameEl, timeEl;
-        for (i = 0; i < history.length; i++) {
-            item = document.createElement('li');
-            nameEl = document.createElement('span');
-            nameEl.className = 'historyName';
-            nameEl.textContent = history[i].name;
-            timeEl = document.createElement('span');
-            timeEl.className = 'historyTime';
-            timeEl.textContent = formatTime(history[i].time);
-            item.appendChild(nameEl);
-            item.appendChild(timeEl);
-            historyList.appendChild(item);
-        }
-    }
-
-    function addHistoryEntry(name) {
-        history.unshift({ name: name, time: new Date().getTime() });
-        if (history.length > HISTORY_LIMIT) {
-            history.length = HISTORY_LIMIT;
-        }
-        persistHistory();
-        renderHistory();
-    }
-
-    function updateHistoryVisibility() {
-        historyPanel.hidden = !showHistoryToggle.checked;
     }
 
     function chooseRandom(names) {
@@ -188,10 +179,10 @@
         isRolling = false;
         drawButton.disabled = false;
         if (confettiToggle.checked) {
-            launchConfetti();
+            launchConfetti(document.getElementById('resultCard'));
         }
 
-        addHistoryEntry(name);
+        addHistoryEntry(name, 'names');
 
         if (removeDrawnToggle.checked) {
             removeNameFromList(name);
@@ -202,11 +193,112 @@
         }, 600);
     }
 
-    function launchConfetti() {
+    // ---- Dice ----
+
+    function updateDiceCountUI() {
+        diceCountValue.innerHTML = diceCount;
+        diceCountMinus.disabled = diceCount <= DICE_MIN;
+        diceCountPlus.disabled = diceCount >= DICE_MAX;
+        if (!isDiceRolling) {
+            renderDicePlaceholders(diceCount);
+            diceTotal.hidden = true;
+            diceStatusText.innerHTML = 'Prêt à lancer les dés.';
+        }
+    }
+
+    function renderDiceFaces(values, rolling) {
+        diceFaces.innerHTML = '';
+        var i, face;
+        for (i = 0; i < values.length; i++) {
+            face = document.createElement('div');
+            face.className = 'dieFace' + (rolling ? ' rolling' : '');
+            face.textContent = values[i];
+            diceFaces.appendChild(face);
+        }
+    }
+
+    function renderDicePlaceholders(count) {
+        diceFaces.innerHTML = '';
+        var i, face;
+        for (i = 0; i < count; i++) {
+            face = document.createElement('div');
+            face.className = 'dieFace';
+            face.textContent = '–';
+            diceFaces.appendChild(face);
+        }
+    }
+
+    function rollValues(count, sides) {
+        var values = [];
+        var i;
+        for (i = 0; i < count; i++) {
+            values.push(1 + Math.floor(Math.random() * sides));
+        }
+        return values;
+    }
+
+    function startDiceRoll() {
+        if (isDiceRolling) { return; }
+        isDiceRolling = true;
+        diceRollButton.disabled = true;
+        diceTotal.hidden = true;
+        diceStatusText.innerHTML = 'Lancer en cours…';
+
+        var sides = parseInt(diceSides.value, 10);
+        var count = diceCount;
+        var finalValues = rollValues(count, sides);
+        var duration = 700;
+        var start = new Date().getTime();
+
+        function tick() {
+            var now = new Date().getTime();
+            var elapsed = now - start;
+            var progress = elapsed / duration;
+            if (progress >= 1) {
+                finishDiceRoll(finalValues, sides);
+                return;
+            }
+            renderDiceFaces(rollValues(count, sides), true);
+            var delay = 40 + Math.pow(progress, 2) * 110;
+            setTimeout(tick, delay);
+        }
+        tick();
+    }
+
+    function finishDiceRoll(values, sides) {
+        renderDiceFaces(values, false);
+        isDiceRolling = false;
+        diceRollButton.disabled = false;
+
+        var total = 0;
+        var i;
+        for (i = 0; i < values.length; i++) {
+            total += values[i];
+        }
+
+        if (values.length > 1) {
+            diceTotal.hidden = false;
+            diceTotalValue.innerHTML = total;
+            diceStatusText.innerHTML = 'Résultat du lancer';
+        } else {
+            diceStatusText.innerHTML = 'Résultat du lancer';
+        }
+
+        if (confettiToggle.checked) {
+            launchConfetti(document.getElementById('diceResultCard'));
+        }
+
+        var label = values.length + '×D' + sides + ' → ' + values.join(', ') +
+            (values.length > 1 ? ' (total ' + total + ')' : '');
+        addHistoryEntry(label, 'dice');
+    }
+
+    // ---- Shared: confetti ----
+
+    function launchConfetti(anchorEl) {
         var colors = ['#2563eb', '#34c768', '#f5a623', '#f46274', '#9c7bff', '#f170b0'];
-        var resultCard = document.getElementById('resultCard');
         var layerRect = confettiLayer.getBoundingClientRect();
-        var cardRect = resultCard ? resultCard.getBoundingClientRect() : layerRect;
+        var cardRect = anchorEl ? anchorEl.getBoundingClientRect() : layerRect;
         var centerX = (cardRect.left - layerRect.left) + cardRect.width / 2;
         var centerY = (cardRect.top - layerRect.top) + cardRect.height / 2;
         var count = 60;
@@ -247,7 +339,83 @@
         }, 2100);
     }
 
+    // ---- Shared: history ----
+
+    function persistOptions() {
+        try {
+            localStorage.setItem('randomizer_remove_drawn', removeDrawnToggle.checked ? '1' : '0');
+            localStorage.setItem('randomizer_show_history', showHistoryToggle.checked ? '1' : '0');
+            localStorage.setItem('randomizer_confetti_enabled', confettiToggle.checked ? '1' : '0');
+        } catch (e) {}
+    }
+
+    function persistHistory() {
+        try { localStorage.setItem('randomizer_history', JSON.stringify(history)); } catch (e) {}
+    }
+
+    function formatTime(timestamp) {
+        var d = new Date(timestamp);
+        var h = d.getHours();
+        var m = d.getMinutes();
+        return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+    }
+
+    function renderHistory() {
+        historyList.innerHTML = '';
+        if (!history.length) {
+            var empty = document.createElement('li');
+            empty.className = 'historyEmpty';
+            empty.textContent = "Aucun tirage pour l'instant.";
+            historyList.appendChild(empty);
+            return;
+        }
+        var i, item, entry, nameEl, timeEl;
+        for (i = 0; i < history.length; i++) {
+            entry = history[i];
+            item = document.createElement('li');
+            item.setAttribute('data-kind', entry.kind || 'names');
+            nameEl = document.createElement('span');
+            nameEl.className = 'historyName';
+            nameEl.textContent = entry.label !== undefined ? entry.label : entry.name;
+            nameEl.title = nameEl.textContent;
+            timeEl = document.createElement('span');
+            timeEl.className = 'historyTime';
+            timeEl.textContent = formatTime(entry.time);
+            item.appendChild(nameEl);
+            item.appendChild(timeEl);
+            historyList.appendChild(item);
+        }
+    }
+
+    function addHistoryEntry(label, kind) {
+        history.unshift({ label: label, kind: kind, time: new Date().getTime() });
+        if (history.length > HISTORY_LIMIT) {
+            history.length = HISTORY_LIMIT;
+        }
+        persistHistory();
+        renderHistory();
+    }
+
+    function updateHistoryVisibility() {
+        historyPanel.hidden = !showHistoryToggle.checked;
+    }
+
+    // ---- Wiring ----
+
     bindAction(drawButton, startDraw);
+    bindAction(diceRollButton, startDiceRoll);
+    bindAction(diceCountMinus, function() {
+        if (diceCount > DICE_MIN) {
+            diceCount -= 1;
+            updateDiceCountUI();
+        }
+    });
+    bindAction(diceCountPlus, function() {
+        if (diceCount < DICE_MAX) {
+            diceCount += 1;
+            updateDiceCountUI();
+        }
+    });
     bindAction(btnClear, function() {
         if (isRolling) { return; }
         nameList.value = '';
@@ -290,6 +458,16 @@
         confettiToggle.addEventListener('change', persistOptions, false);
     }
 
+    if (diceSides.addEventListener) {
+        diceSides.addEventListener('change', function() {
+            if (!isDiceRolling) {
+                renderDicePlaceholders(diceCount);
+                diceTotal.hidden = true;
+                diceStatusText.innerHTML = 'Prêt à lancer les dés.';
+            }
+        }, false);
+    }
+
     if (fileImport.addEventListener) {
         fileImport.addEventListener('change', function() {
             var file = fileImport.files && fileImport.files[0];
@@ -322,8 +500,18 @@
         }
     } catch (e) {}
 
+    var initialTab = 'names';
+    try {
+        var savedTab = localStorage.getItem('randomizer_active_tab');
+        if (savedTab === 'names' || savedTab === 'dice') {
+            initialTab = savedTab;
+        }
+    } catch (e) {}
+
     updateCount();
     updateDuration();
     updateHistoryVisibility();
+    updateDiceCountUI();
     renderHistory();
+    switchTab(initialTab);
 })();

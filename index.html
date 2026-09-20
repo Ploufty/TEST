@@ -21,15 +21,20 @@
                     <p>Tirage au sort tactile</p>
                 </div>
             </div>
-            <div class="topActions">
+            <div class="topActions" id="namesTopActions">
                 <button type="button" id="btnImport" class="softButton">Importer .txt</button>
                 <input type="file" id="fileImport" accept=".txt,.csv,text/plain" style="display:none">
                 <button type="button" id="btnClear" class="softButton danger">Vider</button>
             </div>
         </header>
 
+        <nav class="tabBar" role="tablist" aria-label="Type de tirage">
+            <button type="button" class="tabButton active" data-tab="names" role="tab" aria-selected="true">Noms</button>
+            <button type="button" class="tabButton" data-tab="dice" role="tab" aria-selected="false">Dés</button>
+        </nav>
+
         <section class="optionsBar">
-            <label class="optionToggle">
+            <label class="optionToggle" id="removeDrawnOption">
                 <input type="checkbox" id="removeDrawnToggle">
                 <span>Retirer le nom tiré de la liste</span>
             </label>
@@ -44,37 +49,82 @@
         </section>
 
         <main class="layout">
-            <section class="panel listPanel">
-                <div class="panelHeader">
-                    <h2>Liste</h2>
-                    <span id="countBadge">0 nom</span>
-                </div>
-                <textarea id="nameList" spellcheck="false" placeholder="Colle ou importe une liste ici :&#10;Alice&#10;Bilal&#10;Chloé&#10;Noah"></textarea>
-                <p class="hint">Un nom par ligne. Les virgules et points-virgules fonctionnent aussi.</p>
-            </section>
-
-            <section class="panel drawPanel">
-                <div id="resultCard">
-                    <div id="statusText" aria-live="polite">Ajoute une liste, puis lance le tirage.</div>
-                    <div id="resultName" aria-live="off">—</div>
-                </div>
-
-                <div class="controls">
-                    <button type="button" id="drawButton" class="drawButton" aria-label="Lancer le tirage au sort">
-                        <span class="dieButton" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
-                        <span>Lancer</span>
-                    </button>
-
-                    <div class="speedBox">
-                        <div class="speedHeader">
-                            <label for="durationRange">Durée du tirage</label>
-                            <strong><span id="durationValue">5</span> s</strong>
-                        </div>
-                        <input id="durationRange" type="range" min="3" max="7" value="5" step="1">
-                        <div class="rangeLabels"><span>3 s</span><span>7 s</span></div>
+            <div class="tabPanel" id="tabPanel-names">
+                <section class="panel listPanel">
+                    <div class="panelHeader">
+                        <h2>Liste</h2>
+                        <span id="countBadge">0 nom</span>
                     </div>
-                </div>
-            </section>
+                    <textarea id="nameList" spellcheck="false" placeholder="Colle ou importe une liste ici :&#10;Alice&#10;Bilal&#10;Chloé&#10;Noah"></textarea>
+                    <p class="hint">Un nom par ligne. Les virgules et points-virgules fonctionnent aussi.</p>
+                </section>
+
+                <section class="panel drawPanel">
+                    <div id="resultCard">
+                        <div id="statusText" aria-live="polite">Ajoute une liste, puis lance le tirage.</div>
+                        <div id="resultName" aria-live="off">—</div>
+                    </div>
+
+                    <div class="controls">
+                        <button type="button" id="drawButton" class="drawButton" aria-label="Lancer le tirage au sort">
+                            <span class="dieButton" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+                            <span>Lancer</span>
+                        </button>
+
+                        <div class="speedBox">
+                            <div class="speedHeader">
+                                <label for="durationRange">Durée du tirage</label>
+                                <strong><span id="durationValue">5</span> s</strong>
+                            </div>
+                            <input id="durationRange" type="range" min="3" max="7" value="5" step="1">
+                            <div class="rangeLabels"><span>3 s</span><span>7 s</span></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="tabPanel" id="tabPanel-dice" hidden>
+                <section class="panel listPanel">
+                    <div class="panelHeader">
+                        <h2>Dés</h2>
+                    </div>
+                    <div class="diceOptionRow">
+                        <label id="diceCountLabel">Nombre de dés</label>
+                        <div class="stepper" role="group" aria-labelledby="diceCountLabel">
+                            <button type="button" id="diceCountMinus" class="stepperBtn" aria-label="Retirer un dé">−</button>
+                            <span id="diceCountValue">2</span>
+                            <button type="button" id="diceCountPlus" class="stepperBtn" aria-label="Ajouter un dé">+</button>
+                        </div>
+                    </div>
+                    <div class="diceOptionRow">
+                        <label for="diceSides">Type de dé</label>
+                        <select id="diceSides" class="softSelect">
+                            <option value="4">D4</option>
+                            <option value="6" selected>D6</option>
+                            <option value="8">D8</option>
+                            <option value="10">D10</option>
+                            <option value="12">D12</option>
+                            <option value="20">D20</option>
+                        </select>
+                    </div>
+                    <p class="hint">Choisis le nombre de dés et leur nombre de faces, puis lance.</p>
+                </section>
+
+                <section class="panel drawPanel">
+                    <div id="diceResultCard">
+                        <div id="diceStatusText" aria-live="polite">Prêt à lancer les dés.</div>
+                        <div id="diceFaces" class="diceFaces"></div>
+                        <div id="diceTotal" class="diceTotal" hidden>Total : <strong id="diceTotalValue">0</strong></div>
+                    </div>
+
+                    <div class="controls">
+                        <button type="button" id="diceRollButton" class="drawButton" aria-label="Lancer les dés">
+                            <span class="dieButton" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+                            <span>Lancer</span>
+                        </button>
+                    </div>
+                </section>
+            </div>
 
             <aside class="panel historyPanel" id="historyPanel">
                 <div class="panelHeader">

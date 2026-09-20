@@ -2,6 +2,10 @@
     box-sizing: border-box;
 }
 
+[hidden] {
+    display: none !important;
+}
+
 html, body {
     margin: 0;
     padding: 0;
@@ -146,6 +150,46 @@ h1 {
     transform: none;
 }
 
+.tabBar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 6px;
+    background: rgba(255,255,255,.6);
+    border: 1px solid #c9d8ea;
+    border-radius: 18px;
+}
+
+.tabButton {
+    flex: 1 1 auto;
+    min-width: 100px;
+    height: 40px;
+    padding: 0 16px;
+    color: #58718b;
+    background: transparent;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.tabButton:hover,
+.tabButton:focus {
+    color: #2563eb;
+    outline: none;
+}
+
+.tabButton.active {
+    color: #fff;
+    background: linear-gradient(180deg, #6caeff, #2563eb);
+    box-shadow: 0 3px 10px rgba(37,99,235,.35);
+}
+
+.tabPanel {
+    display: contents;
+}
+
 .optionsBar {
     display: flex;
     flex-wrap: wrap;
@@ -266,6 +310,143 @@ h1 {
     color: #617891;
     font-size: 12px;
     line-height: 17px;
+}
+
+.diceOptionRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.diceOptionRow label {
+    color: #12304b;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.stepper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stepperBtn {
+    width: 32px;
+    height: 32px;
+    color: #2563eb;
+    background: linear-gradient(180deg, #ffffff, #e9f2fb);
+    border: 2px solid #9eb8d3;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.stepperBtn:hover,
+.stepperBtn:focus {
+    border-color: #2563eb;
+    outline: none;
+}
+
+.stepperBtn:disabled {
+    opacity: .4;
+    cursor: default;
+}
+
+#diceCountValue {
+    min-width: 20px;
+    text-align: center;
+    color: #12304b;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.softSelect {
+    height: 36px;
+    padding: 0 12px;
+    color: #18324e;
+    background: linear-gradient(180deg, #ffffff, #e9f2fb);
+    border: 2px solid #9eb8d3;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.softSelect:hover,
+.softSelect:focus {
+    border-color: #2563eb;
+    outline: none;
+}
+
+#diceResultCard {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 160px;
+    border-radius: 24px;
+    background: linear-gradient(180deg, #ffffff, #f4f9ff);
+    border: 1px solid #c4d5e8;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 5px 14px rgba(23,52,84,.09);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 18px;
+    gap: 12px;
+}
+
+#diceStatusText {
+    min-height: 24px;
+    color: #617891;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.diceFaces {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.dieFace {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    color: #fff;
+    background: linear-gradient(180deg, #6caeff, #2563eb);
+    border: 2px solid #1f59dd;
+    border-radius: 16px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 4px 10px rgba(37,99,235,.30);
+    font-size: 24px;
+    font-weight: 900;
+}
+
+.dieFace.rolling {
+    animation: dieShake .3s ease-in-out infinite;
+}
+
+@keyframes dieShake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-8deg); }
+    75% { transform: rotate(8deg); }
+}
+
+.diceTotal {
+    color: #12304b;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.diceTotal strong {
+    color: #2563eb;
+    font-size: 20px;
 }
 
 .drawPanel {
@@ -507,10 +688,6 @@ h1 {
     flex-direction: column;
 }
 
-.historyPanel[hidden] {
-    display: none;
-}
-
 .historyList {
     flex: 1 1 auto;
     margin: 0;
@@ -540,6 +717,14 @@ h1 {
 .historyList li:first-child {
     border-color: #2563eb;
     box-shadow: 0 0 0 3px rgba(37,99,235,.10);
+}
+
+.historyList li {
+    border-left: 4px solid #34c768;
+}
+
+.historyList li[data-kind="dice"] {
+    border-left-color: #f5a623;
 }
 
 .historyList .historyName {
