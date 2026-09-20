@@ -84,30 +84,35 @@
             </div>
 
             <div class="tabPanel" id="tabPanel-dice" hidden>
-                <section class="panel listPanel">
+                <section class="panel listPanel dicePanel">
                     <div class="panelHeader">
                         <h2>Dés</h2>
                     </div>
-                    <div class="diceOptionRow">
-                        <label id="diceCountLabel">Nombre de dés</label>
-                        <div class="stepper" role="group" aria-labelledby="diceCountLabel">
-                            <button type="button" id="diceCountMinus" class="stepperBtn" aria-label="Retirer un dé">−</button>
-                            <span id="diceCountValue">2</span>
-                            <button type="button" id="diceCountPlus" class="stepperBtn" aria-label="Ajouter un dé">+</button>
+
+                    <div class="diceGroup">
+                        <span class="diceGroupLabel" id="diceStyleLabel">Sélectionner un dé</span>
+                        <div class="pillRow" role="group" aria-labelledby="diceStyleLabel">
+                            <button type="button" class="pillBtn iconPill active" data-style="pips" aria-label="Dé à points" aria-pressed="true">
+                                <span class="miniPipFace" data-value="5" aria-hidden="true"></span>
+                            </button>
+                            <button type="button" class="pillBtn iconPill" data-style="digits" aria-label="Dé à chiffres" aria-pressed="false">5</button>
+                            <button type="button" class="pillBtn iconPill" data-style="hands" aria-label="Dé à doigts" aria-pressed="false">
+                                <span class="miniHand" data-value="5" aria-hidden="true"></span>
+                            </button>
                         </div>
                     </div>
-                    <div class="diceOptionRow">
-                        <label for="diceSides">Type de dé</label>
-                        <select id="diceSides" class="softSelect">
-                            <option value="4">D4</option>
-                            <option value="6" selected>D6</option>
-                            <option value="8">D8</option>
-                            <option value="10">D10</option>
-                            <option value="12">D12</option>
-                            <option value="20">D20</option>
-                        </select>
+
+                    <div class="diceGroup">
+                        <span class="diceGroupLabel" id="diceCountLabel">Nombre de dé(s)</span>
+                        <div class="pillRow" id="diceCountRow" role="group" aria-labelledby="diceCountLabel"></div>
                     </div>
-                    <p class="hint">Choisis le nombre de dés et leur nombre de faces, puis lance.</p>
+
+                    <div class="diceGroup">
+                        <span class="diceGroupLabel" id="diceSidesLabel">Valeur max</span>
+                        <div class="pillRow" id="diceSidesRow" role="group" aria-labelledby="diceSidesLabel"></div>
+                    </div>
+
+                    <p class="hint">Choisis le style, le nombre de dés et leur valeur max, puis lance.</p>
                 </section>
 
                 <section class="panel drawPanel">
@@ -117,7 +122,7 @@
                         <div id="diceTotal" class="diceTotal" hidden>Total : <strong id="diceTotalValue">0</strong></div>
                     </div>
 
-                    <div class="controls">
+                    <div class="controls diceControls">
                         <button type="button" id="diceRollButton" class="drawButton" aria-label="Lancer les dés">
                             <span class="dieButton" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
                             <span>Lancer</span>

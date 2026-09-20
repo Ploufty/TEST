@@ -312,74 +312,79 @@ h1 {
     line-height: 17px;
 }
 
-.diceOptionRow {
+.dicePanel {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 14px;
+    flex-direction: column;
 }
 
-.diceOptionRow label {
-    color: #12304b;
+.diceGroup {
+    margin-bottom: 16px;
+}
+
+.diceGroup:last-of-type {
+    margin-bottom: 0;
+}
+
+.diceGroupLabel {
+    display: block;
+    margin-bottom: 8px;
+    color: #58718b;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+
+.pillRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.pillBtn {
+    min-width: 38px;
+    height: 38px;
+    padding: 0 10px;
+    color: #58718b;
+    background: linear-gradient(180deg, #ffffff, #eef4fb);
+    border: 2px solid #c7d7e9;
+    border-radius: 999px;
     font-size: 14px;
     font-weight: bold;
-}
-
-.stepper {
+    cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
 }
 
-.stepperBtn {
-    width: 32px;
-    height: 32px;
-    color: #2563eb;
-    background: linear-gradient(180deg, #ffffff, #e9f2fb);
-    border: 2px solid #9eb8d3;
-    border-radius: 10px;
-    font-size: 18px;
-    font-weight: bold;
-    line-height: 1;
-    cursor: pointer;
-}
-
-.stepperBtn:hover,
-.stepperBtn:focus {
+.pillBtn:hover,
+.pillBtn:focus {
     border-color: #2563eb;
     outline: none;
 }
 
-.stepperBtn:disabled {
-    opacity: .4;
-    cursor: default;
+.pillBtn.active {
+    color: #fff;
+    background: linear-gradient(180deg, #6caeff, #2563eb);
+    border-color: #1f59dd;
+    box-shadow: 0 3px 8px rgba(37,99,235,.30);
 }
 
-#diceCountValue {
-    min-width: 20px;
-    text-align: center;
-    color: #12304b;
+.pillBtn.iconPill {
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border-radius: 14px;
     font-size: 18px;
-    font-weight: bold;
+    font-weight: 900;
 }
 
-.softSelect {
-    height: 36px;
-    padding: 0 12px;
-    color: #18324e;
-    background: linear-gradient(180deg, #ffffff, #e9f2fb);
-    border: 2px solid #9eb8d3;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.softSelect:hover,
-.softSelect:focus {
-    border-color: #2563eb;
-    outline: none;
+.miniPipFace,
+.miniHand {
+    position: relative;
+    display: block;
+    width: 22px;
+    height: 22px;
 }
 
 #diceResultCard {
@@ -414,22 +419,111 @@ h1 {
 }
 
 .dieFace {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 56px;
-    height: 56px;
+    width: 64px;
+    height: 64px;
     color: #fff;
     background: linear-gradient(180deg, #6caeff, #2563eb);
     border: 2px solid #1f59dd;
     border-radius: 16px;
     box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 4px 10px rgba(37,99,235,.30);
-    font-size: 24px;
+    font-size: 26px;
     font-weight: 900;
 }
 
 .dieFace.rolling {
     animation: dieShake .3s ease-in-out infinite;
+}
+
+.pipGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    grid-template-areas:
+        "tl . tr"
+        "ml c mr"
+        "bl . br";
+    width: 68%;
+    height: 68%;
+    gap: 6%;
+}
+
+.pip {
+    justify-self: center;
+    align-self: center;
+    width: 100%;
+    height: 100%;
+    max-width: 9px;
+    max-height: 9px;
+    border-radius: 50%;
+    background-color: currentColor;
+}
+
+.pip-tl { grid-area: tl; }
+.pip-tr { grid-area: tr; }
+.pip-ml { grid-area: ml; }
+.pip-mr { grid-area: mr; }
+.pip-bl { grid-area: bl; }
+.pip-br { grid-area: br; }
+.pip-c { grid-area: c; }
+
+.handFace {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.handFace .palm {
+    position: absolute;
+    left: 16%;
+    bottom: 4%;
+    width: 68%;
+    height: 32%;
+    background-color: currentColor;
+    border-radius: 40% 40% 30% 30%;
+}
+
+.handFace .finger {
+    position: absolute;
+    bottom: 20%;
+    width: 13%;
+    border-radius: 40%;
+    background-color: currentColor;
+}
+
+.handFace .finger.thumb {
+    width: 15%;
+    height: 30%;
+    left: 6%;
+    bottom: 12%;
+    transform: rotate(-30deg);
+    transform-origin: bottom center;
+}
+
+.handFace .finger.index { left: 23%; height: 48%; }
+.handFace .finger.middle { left: 39%; height: 56%; }
+.handFace .finger.ring { left: 55%; height: 50%; }
+.handFace .finger.pinky { left: 71%; height: 38%; }
+
+.handFace .plusOne {
+    position: absolute;
+    top: -8%;
+    right: -10%;
+    width: 34%;
+    height: 34%;
+    border-radius: 50%;
+    background: #fff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 900;
+    box-shadow: 0 2px 4px rgba(23,52,84,.25);
 }
 
 @keyframes dieShake {
@@ -514,6 +608,14 @@ h1 {
     flex-wrap: wrap;
     align-items: center;
     gap: 16px;
+}
+
+.diceControls {
+    justify-content: flex-end;
+}
+
+.diceControls .drawButton {
+    min-width: 176px;
 }
 
 .drawButton {

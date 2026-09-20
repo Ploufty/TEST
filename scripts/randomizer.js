@@ -25,19 +25,26 @@
     var tabButtons = document.querySelectorAll('.tabButton');
     var tabPanels = document.querySelectorAll('.tabPanel');
 
-    var diceCountValue = document.getElementById('diceCountValue');
-    var diceCountMinus = document.getElementById('diceCountMinus');
-    var diceCountPlus = document.getElementById('diceCountPlus');
-    var diceSides = document.getElementById('diceSides');
+    var diceCountRow = document.getElementById('diceCountRow');
+    var diceSidesRow = document.getElementById('diceSidesRow');
+    var diceStyleButtons = document.querySelectorAll('.pillBtn.iconPill[data-style]');
     var diceRollButton = document.getElementById('diceRollButton');
     var diceFaces = document.getElementById('diceFaces');
     var diceStatusText = document.getElementById('diceStatusText');
     var diceTotal = document.getElementById('diceTotal');
     var diceTotalValue = document.getElementById('diceTotalValue');
 
+    var DICE_SIDES_OPTIONS = {
+        pips: [2, 3, 4, 5, 6],
+        hands: [2, 3, 4, 5, 6],
+        digits: [4, 6, 8, 10, 12, 20]
+    };
+
     var isRolling = false;
     var isDiceRolling = false;
     var diceCount = 2;
+    var diceStyle = 'pips';
+    var diceSidesValue = 6;
     var history = [];
 
     function bindAction(element, action) {
@@ -195,15 +202,51 @@
 
     // ---- Dice ----
 
-    function updateDiceCountUI() {
-        diceCountValue.innerHTML = diceCount;
-        diceCountMinus.disabled = diceCount <= DICE_MIN;
-        diceCountPlus.disabled = diceCount >= DICE_MAX;
-        if (!isDiceRolling) {
-            renderDicePlaceholders(diceCount);
-            diceTotal.hidden = true;
-            diceStatusText.innerHTML = 'Prêt à lancer les dés.';
+    function buildPipMarkup(value) {
+        var slots = {
+            1: ['c'],
+            2: ['tl', 'br'],
+            3: ['tl', 'c', 'br'],
+            4: ['tl', 'tr', 'bl', 'br'],
+            5: ['tl', 'tr', 'c', 'bl', 'br'],
+            6: ['tl', 'tr', 'ml', 'mr', 'bl', 'br']
+        };
+        var active = slots[value] || [];
+        var html = '<span class="pipGrid">';
+        var i;
+        for (i = 0; i < active.length; i++) {
+            html += '<span class="pip pip-' + active[i] + '"></span>';
         }
+        html += '</span>';
+        return html;
+    }
+
+    function buildHandMarkup(value) {
+        var fingerSets = {
+            1: ['index'],
+            2: ['index', 'middle'],
+            3: ['index', 'middle', 'ring'],
+            4: ['index', 'middle', 'ring', 'pinky'],
+            5: ['thumb', 'index', 'middle', 'ring', 'pinky'],
+            6: ['thumb', 'index', 'middle', 'ring', 'pinky']
+        };
+        var fingers = fingerSets[value] || [];
+        var html = '<span class="handFace"><span class="palm"></span>';
+        var i;
+        for (i = 0; i < fingers.length; i++) {
+            html += '<span class="finger ' + fingers[i] + '"></span>';
+        }
+        if (value >= 6) {
+            html += '<span class="plusOne">+1</span>';
+        }
+        html += '</span>';
+        return html;
+    }
+
+    function buildFaceInner(value, style) {
+        if (style === 'pips') { return buildPipMarkup(value); }
+        if (style === 'hands') { return buildHandMarkup(value); }
+        return String(value);
     }
 
     function renderDiceFaces(values, rolling) {
@@ -211,21 +254,22 @@
         var i, face;
         for (i = 0; i < values.length; i++) {
             face = document.createElement('div');
-            face.className = 'dieFace' + (rolling ? ' rolling' : '');
-            face.textContent = values[i];
+            face.className = 'dieFace style-' + diceStyle + (rolling ? ' rolling' : '');
+            face.innerHTML = buildFaceInner(values[i], diceStyle);
             diceFaces.appendChild(face);
         }
     }
 
     function renderDicePlaceholders(count) {
-        diceFaces.innerHTML = '';
-        var i, face;
+        var placeholderValue = diceStyle === 'digits' ? '–' : 0;
+        var values = [];
+        var i;
         for (i = 0; i < count; i++) {
-            face = document.createElement('div');
-            face.className = 'dieFace';
-            face.textContent = '–';
-            diceFaces.appendChild(face);
+            values.push(placeholderValue);
         }
+        renderDiceFaces(values, false);
+        diceTotal.hidden = true;
+        diceStatusText.innerHTML = 'Prêt à lancer les dés.';
     }
 
     function rollValues(count, sides) {
@@ -237,6 +281,93 @@
         return values;
     }
 
+    function buildCountRow() {
+        diceCountRow.innerHTML = '';
+        var i, btn;
+        for (i = DICE_MIN; i <= DICE_MAX; i++) {
+            btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'pillBtn' + (i === diceCount ? ' active' : '');
+            btn.textContent = i;
+            btn.setAttribute('data-count', i);
+            bindAction(btn, makeCountHandler(i));
+            diceCountRow.appendChild(btn);
+        }
+    }
+
+    function makeCountHandler(value) {
+        return function() {
+            diceCount = value;
+            updateCountActive();
+            if (!isDiceRolling) { renderDicePlaceholders(diceCount); }
+            persistDiceOptions();
+        };
+    }
+
+    function updateCountActive() {
+        var buttons = diceCountRow.querySelectorAll('.pillBtn');
+        var i;
+        for (i = 0; i < buttons.length; i++) {
+            buttons[i].classList.toggle('active', parseInt(buttons[i].getAttribute('data-count'), 10) === diceCount);
+        }
+    }
+
+    function buildSidesRow() {
+        var options = DICE_SIDES_OPTIONS[diceStyle] || DICE_SIDES_OPTIONS.digits;
+        if (options.indexOf(diceSidesValue) === -1) {
+            diceSidesValue = options[options.length - 1];
+        }
+        diceSidesRow.innerHTML = '';
+        var i, btn;
+        for (i = 0; i < options.length; i++) {
+            btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'pillBtn' + (options[i] === diceSidesValue ? ' active' : '');
+            btn.textContent = options[i];
+            btn.setAttribute('data-sides', options[i]);
+            bindAction(btn, makeSidesHandler(options[i]));
+            diceSidesRow.appendChild(btn);
+        }
+    }
+
+    function makeSidesHandler(value) {
+        return function() {
+            diceSidesValue = value;
+            updateSidesActive();
+            persistDiceOptions();
+        };
+    }
+
+    function updateSidesActive() {
+        var buttons = diceSidesRow.querySelectorAll('.pillBtn');
+        var i;
+        for (i = 0; i < buttons.length; i++) {
+            buttons[i].classList.toggle('active', parseInt(buttons[i].getAttribute('data-sides'), 10) === diceSidesValue);
+        }
+    }
+
+    function setDiceStyle(style) {
+        diceStyle = style;
+        var i, btn, isActive;
+        for (i = 0; i < diceStyleButtons.length; i++) {
+            btn = diceStyleButtons[i];
+            isActive = btn.getAttribute('data-style') === style;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        }
+        buildSidesRow();
+        if (!isDiceRolling) { renderDicePlaceholders(diceCount); }
+        persistDiceOptions();
+    }
+
+    function persistDiceOptions() {
+        try {
+            localStorage.setItem('randomizer_dice_style', diceStyle);
+            localStorage.setItem('randomizer_dice_count', String(diceCount));
+            localStorage.setItem('randomizer_dice_sides', String(diceSidesValue));
+        } catch (e) {}
+    }
+
     function startDiceRoll() {
         if (isDiceRolling) { return; }
         isDiceRolling = true;
@@ -244,7 +375,7 @@
         diceTotal.hidden = true;
         diceStatusText.innerHTML = 'Lancer en cours…';
 
-        var sides = parseInt(diceSides.value, 10);
+        var sides = diceSidesValue;
         var count = diceCount;
         var finalValues = rollValues(count, sides);
         var duration = 700;
@@ -279,10 +410,8 @@
         if (values.length > 1) {
             diceTotal.hidden = false;
             diceTotalValue.innerHTML = total;
-            diceStatusText.innerHTML = 'Résultat du lancer';
-        } else {
-            diceStatusText.innerHTML = 'Résultat du lancer';
         }
+        diceStatusText.innerHTML = 'Résultat du lancer';
 
         if (confettiToggle.checked) {
             launchConfetti(document.getElementById('diceResultCard'));
@@ -404,18 +533,18 @@
 
     bindAction(drawButton, startDraw);
     bindAction(diceRollButton, startDiceRoll);
-    bindAction(diceCountMinus, function() {
-        if (diceCount > DICE_MIN) {
-            diceCount -= 1;
-            updateDiceCountUI();
-        }
-    });
-    bindAction(diceCountPlus, function() {
-        if (diceCount < DICE_MAX) {
-            diceCount += 1;
-            updateDiceCountUI();
-        }
-    });
+
+    for (var s = 0; s < diceStyleButtons.length; s++) {
+        bindAction(diceStyleButtons[s], function() {
+            setDiceStyle(this.getAttribute('data-style'));
+        });
+    }
+
+    var miniPipPreview = document.querySelector('.miniPipFace');
+    if (miniPipPreview) { miniPipPreview.innerHTML = buildPipMarkup(5); }
+    var miniHandPreview = document.querySelector('.miniHand');
+    if (miniHandPreview) { miniHandPreview.innerHTML = buildHandMarkup(5); }
+
     bindAction(btnClear, function() {
         if (isRolling) { return; }
         nameList.value = '';
@@ -458,16 +587,6 @@
         confettiToggle.addEventListener('change', persistOptions, false);
     }
 
-    if (diceSides.addEventListener) {
-        diceSides.addEventListener('change', function() {
-            if (!isDiceRolling) {
-                renderDicePlaceholders(diceCount);
-                diceTotal.hidden = true;
-                diceStatusText.innerHTML = 'Prêt à lancer les dés.';
-            }
-        }, false);
-    }
-
     if (fileImport.addEventListener) {
         fileImport.addEventListener('change', function() {
             var file = fileImport.files && fileImport.files[0];
@@ -498,6 +617,18 @@
         if (savedHistory) {
             history = JSON.parse(savedHistory) || [];
         }
+        var savedDiceStyle = localStorage.getItem('randomizer_dice_style');
+        if (savedDiceStyle === 'pips' || savedDiceStyle === 'digits' || savedDiceStyle === 'hands') {
+            diceStyle = savedDiceStyle;
+        }
+        var savedDiceCount = parseInt(localStorage.getItem('randomizer_dice_count'), 10);
+        if (savedDiceCount >= DICE_MIN && savedDiceCount <= DICE_MAX) {
+            diceCount = savedDiceCount;
+        }
+        var savedDiceSides = parseInt(localStorage.getItem('randomizer_dice_sides'), 10);
+        if (savedDiceSides) {
+            diceSidesValue = savedDiceSides;
+        }
     } catch (e) {}
 
     var initialTab = 'names';
@@ -511,7 +642,9 @@
     updateCount();
     updateDuration();
     updateHistoryVisibility();
-    updateDiceCountUI();
     renderHistory();
+    setDiceStyle(diceStyle);
+    buildCountRow();
+    renderDicePlaceholders(diceCount);
     switchTab(initialTab);
 })();
