@@ -503,7 +503,7 @@ h1 {
     background: #ffffff;
     border: 1.5px solid #1f2937;
     border-radius: 16px;
-    box-shadow: 0 4px 10px rgba(23,52,84,.14);
+    box-shadow: 0 6px 14px rgba(23,52,84,.22);
     font-size: 26px;
     font-weight: 900;
 }
