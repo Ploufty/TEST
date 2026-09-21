@@ -93,6 +93,9 @@
         var isNames = tabName === 'names';
         removeDrawnOption.hidden = !isNames;
         namesTopActions.hidden = !isNames;
+        if (!isNames && !isDiceRolling) {
+            sizeDiceTiles(diceCount);
+        }
         try { localStorage.setItem('randomizer_active_tab', tabName); } catch (e) {}
     }
 
@@ -314,6 +317,18 @@
         return String(value);
     }
 
+    function sizeDiceTiles(count) {
+        var containerWidth = diceFaces.clientWidth || 300;
+        var containerHeight = diceFaces.clientHeight || 160;
+        var gap = 14;
+        var perRow = count;
+        var maxRows = Math.ceil(count / perRow);
+        var byWidth = (containerWidth - gap * (perRow - 1)) / perRow;
+        var byHeight = (containerHeight - gap * (maxRows - 1)) / maxRows;
+        var size = Math.max(56, Math.min(130, byWidth, byHeight));
+        diceFaces.style.setProperty('--dieSize', size + 'px');
+    }
+
     function renderDiceFaces(values, rolling) {
         diceFaces.innerHTML = '';
         var i, face;
@@ -326,6 +341,7 @@
     }
 
     function createDroppingTiles(count) {
+        sizeDiceTiles(count);
         diceFaces.innerHTML = '';
         var tiles = [];
         var i, tile;
@@ -347,6 +363,7 @@
     }
 
     function renderDicePlaceholders(count) {
+        sizeDiceTiles(count);
         var placeholderValue = diceStyle === 'digits' ? '–' : 0;
         var values = [];
         var i;
