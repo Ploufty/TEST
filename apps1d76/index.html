@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apps1D76 - Outils numériques</title>
+    <style>
+        /* ==========================================================
+           Direction artistique Apps1D76 (reprise de la page d'origine)
+           ========================================================== */
+        :root {
+            /* Couleurs */
+            --color-text: #2c3e50;          /* bleu nuit : titres, noms d'outils */
+            --color-text-muted: #64748b;    /* gris ardoise : sous-titres, descriptions */
+            --color-bg-top: #ffffff;
+            --color-bg-bottom: #f8f9fa;
+            --color-card: rgba(255, 255, 255, 0.9);
+            --color-card-hover: rgba(255, 255, 255, 0.95);
+            --color-line: #e2e8f0;          /* filets (remplace le blanc 20 % invisible) */
+            --color-tag-bg: #f1f5f9;
+
+            /* Typographie */
+            --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+            /* Formes et ombres */
+            --radius-card: 12px;
+            --radius-small: 8px;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font);
+            color: var(--color-text);
+            background: linear-gradient(180deg, var(--color-bg-top) 0%, var(--color-bg-bottom) 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ---------- En-tête ---------- */
+        .header {
+            text-align: center;
+            padding: 2rem 1rem;
+            border-bottom: 1px solid var(--color-line);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .brand img {
+            height: 50px;
+            width: auto;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            color: var(--color-text-muted);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+        }
+
+        .mission {
+            color: var(--color-text-muted);
+            font-style: italic;
+            margin-top: 0.25rem;
+        }
+
+        /* ---------- Navigation rapide ---------- */
+        .quick-nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .quick-nav a {
+            text-decoration: none;
+            color: var(--color-text);
+            background: var(--color-card);
+            border: 1px solid var(--color-line);
+            border-radius: 999px;
+            padding: 0.4rem 1rem;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .quick-nav a:hover {
+            box-shadow: var(--shadow);
+        }
+
+        /* ---------- Contenu ---------- */
+        .main-content {
+            flex: 1;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 3rem 1rem;
+        }
+
+        .section + .section {
+            margin-top: 3rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            gap: 0.75rem;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--color-line);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 400;
+        }
+
+        .section-intro {
+            color: var(--color-text-muted);
+            font-size: 0.95rem;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .tool-card {
+            display: flex;
+            flex-direction: column;
+            background: var(--color-card);
+            border: 1px solid var(--color-line);
+            border-radius: var(--radius-card);
+            padding: 1.5rem;
+            text-decoration: none;
+            color: var(--color-text);
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+            background: var(--color-card-hover);
+        }
+
+        .tool-card:focus-visible,
+        .quick-nav a:focus-visible {
+            outline: 2px solid var(--color-text);
+            outline-offset: 3px;
+        }
+
+        .tool-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .tool-name {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .tool-description {
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 1rem;
+            list-style: none;
+        }
+
+        .tags li {
+            background: var(--color-tag-bg);
+            color: var(--color-text-muted);
+            border-radius: var(--radius-small);
+            padding: 0.15rem 0.6rem;
+            font-size: 0.75rem;
+        }
+
+        .coming-soon {
+            text-align: center;
+            color: var(--color-text-muted);
+            font-style: italic;
+            margin-top: 3rem;
+        }
+
+        /* ---------- Pied de page ---------- */
+        .footer {
+            text-align: center;
+            padding: 1.5rem;
+            border-top: 1px solid var(--color-line);
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .tool-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tool-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .tool-card,
+            .quick-nav a {
+                transition: none;
+            }
+
+            .tool-card:hover {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="brand">
+            <img src="images/Logo_DSDEN76.png" alt="Logo DSDEN76" onerror="this.style.display='none'">
+            <h1>Apps1D76</h1>
+        </div>
+        <p class="subtitle">Outils numériques pour l'école primaire</p>
+        <p class="mission">Mission Numérique Éducatif 76</p>
+
+        <nav class="quick-nav" aria-label="Rubriques">
+            <a href="#en-classe">🧑‍🏫 En classe</a>
+            <a href="#suivi">📊 Suivre et évaluer</a>
+            <a href="#direction">🏫 Direction d'école</a>
+        </nav>
+    </header>
+
+    <main class="main-content">
+
+        <section class="section" id="en-classe">
+            <div class="section-header">
+                <h2 class="section-title">🧑‍🏫 En classe</h2>
+                <p class="section-intro">Des outils à utiliser avec les élèves</p>
+            </div>
+            <div class="tool-grid">
+                <a href="./prompteurs/index.html" class="tool-card">
+                    <span class="tool-icon">▶️</span>
+                    <div class="tool-name">Prompteurs de lecture</div>
+                    <p class="tool-description">Outils d'aide à la lecture avec défilement automatique pour améliorer la fluence.</p>
+                    <ul class="tags"><li>Français</li><li>Fluence</li></ul>
+                </a>
+
+                <a href="./Litteranum/index.html" class="tool-card">
+                    <span class="tool-icon">📚</span>
+                    <div class="tool-name">Littérature et numérique</div>
+                    <p class="tool-description">Des albums et documentaires pour travailler le numérique en classe.</p>
+                    <ul class="tags"><li>Français</li><li>Numérique</li></ul>
+                </a>
+
+                <a href="./course/index.html" class="tool-card">
+                    <span class="tool-icon">🔢</span>
+                    <div class="tool-name">Course aux nombres</div>
+                    <p class="tool-description">Générateur de fiches d'entraînement au calcul de fluence.</p>
+                    <ul class="tags"><li>Mathématiques</li><li>CE1</li></ul>
+                </a>
+
+                <a href="./250consignes/index.html" class="tool-card">
+                    <span class="tool-icon">🙋</span>
+                    <div class="tool-name">250 consignes en LVE</div>
+                    <p class="tool-description">250 consignes utilisables en classe en allemand, anglais, espagnol et portugais.</p>
+                    <ul class="tags"><li>Langues vivantes</li></ul>
+                </a>
+
+                <a href="./generateur-etiquettes-deplacables/" class="tool-card">
+                    <span class="tool-icon">🏷️</span>
+                    <div class="tool-name">Générateur d'étiquettes</div>
+                    <p class="tool-description">Étiquettes déplaçables (textes, images…) pour l'écran numérique interactif.</p>
+                    <ul class="tags"><li>Tous domaines</li><li>ENI</li></ul>
+                </a>
+            </div>
+        </section>
+
+        <section class="section" id="suivi">
+            <div class="section-header">
+                <h2 class="section-title">📊 Suivre et évaluer</h2>
+                <p class="section-intro">Suivre les progrès des élèves et y répondre</p>
+            </div>
+            <div class="tool-grid">
+                <a href="./carnet.html" class="tool-card">
+                    <span class="tool-icon">📖</span>
+                    <div class="tool-name">Carnet de suivi des apprentissages</div>
+                    <p class="tool-description">Carnet de suivi des apprentissages de ses élèves, par domaine de compétence.</p>
+                    <ul class="tags"><li>Maternelle</li></ul>
+                </a>
+
+                <a href="./evalaide/index.html" class="tool-card">
+                    <span class="tool-icon">🔍</span>
+                    <div class="tool-name">Éval'aide numérique</div>
+                    <p class="tool-description">Ressources numériques associées aux compétences des évaluations nationales.</p>
+                    <ul class="tags"><li>Français</li><li>Mathématiques</li><li>CP → CM2</li></ul>
+                </a>
+            </div>
+        </section>
+
+        <section class="section" id="direction">
+            <div class="section-header">
+                <h2 class="section-title">🏫 Direction d'école</h2>
+                <p class="section-intro">Organiser la vie de l'école</p>
+            </div>
+            <div class="tool-grid">
+                <a href="./outildir/orga_recre.html" class="tool-card">
+                    <span class="tool-icon">⏰</span>
+                    <div class="tool-name">Planning des récréations</div>
+                    <p class="tool-description">Qui surveille quand ? Un organiseur de planning simple, avec étiquettes déplaçables.</p>
+                </a>
+
+                <a href="./outildir/ThunderStruct.html" class="tool-card">
+                    <span class="tool-icon">📆</span>
+                    <div class="tool-name">Planifier ses classes n+1</div>
+                    <p class="tool-description">Répartition des élèves dans les classes pour préparer la rentrée scolaire.</p>
+                </a>
+            </div>
+        </section>
+
+        <p class="coming-soon">D'autres outils arriveront bientôt !</p>
+    </main>
+
+    <footer class="footer">
+        Académie de Normandie - Seine-Maritime (76) • Conçu pour faciliter l'apprentissage
+    </footer>
+
+</body>
+</html>
