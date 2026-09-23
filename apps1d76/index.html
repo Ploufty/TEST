@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apps1D76 - Outils numériques</title>
+    <script>document.documentElement.classList.add('js');</script>
     <style>
         /* ==========================================================
            Direction artistique Apps1D76 (reprise de la page d'origine)
@@ -17,7 +18,16 @@
             --color-card: rgba(255, 255, 255, 0.9);
             --color-card-hover: rgba(255, 255, 255, 0.95);
             --color-line: #e2e8f0;          /* filets (remplace le blanc 20 % invisible) */
-            --color-tag-bg: #f1f5f9;
+
+            /* Accents par rubrique (contraste ≥ 4,5:1 sur blanc) */
+            --accent-classe: #2563eb;        /* bleu */
+            --accent-classe-soft: #eff6ff;
+            --accent-outils: #7c3aed;        /* violet */
+            --accent-outils-soft: #f5f3ff;
+            --accent-suivi: #047857;         /* vert */
+            --accent-suivi-soft: #ecfdf5;
+            --accent-direction: #c2410c;     /* orange */
+            --accent-direction-soft: #fff7ed;
 
             /* Typographie */
             --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -28,6 +38,10 @@
             --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.15);
             --transition: all 0.3s ease;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         * {
@@ -48,8 +62,7 @@
         /* ---------- En-tête ---------- */
         .header {
             text-align: center;
-            padding: 2rem 1rem;
-            border-bottom: 1px solid var(--color-line);
+            padding: 2.5rem 1rem 1.5rem;
         }
 
         .brand {
@@ -82,13 +95,20 @@
             margin-top: 0.25rem;
         }
 
-        /* ---------- Navigation rapide ---------- */
+        /* ---------- Navigation rapide (collante) ---------- */
         .quick-nav {
+            position: sticky;
+            top: 0;
+            z-index: 10;
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 0.5rem;
-            margin-top: 1.5rem;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--color-line);
         }
 
         .quick-nav a {
@@ -102,77 +122,144 @@
             transition: var(--transition);
         }
 
+        .quick-nav a:hover,
+        .quick-nav a.is-active {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+
         .quick-nav a:hover {
+            transform: translateY(-2px);
             box-shadow: var(--shadow);
         }
+
+        /* Chaque rubrique (et son raccourci) définit son accent */
+        .accent-classe    { --accent: var(--accent-classe);    --accent-soft: var(--accent-classe-soft); }
+        .accent-outils    { --accent: var(--accent-outils);    --accent-soft: var(--accent-outils-soft); }
+        .accent-suivi     { --accent: var(--accent-suivi);     --accent-soft: var(--accent-suivi-soft); }
+        .accent-direction { --accent: var(--accent-direction); --accent-soft: var(--accent-direction-soft); }
 
         /* ---------- Contenu ---------- */
         .main-content {
             flex: 1;
             width: 100%;
-            max-width: 1000px;
+            max-width: 1040px;
             margin: 0 auto;
             padding: 3rem 1rem;
         }
 
+        .section {
+            scroll-margin-top: 5rem;
+        }
+
         .section + .section {
-            margin-top: 3rem;
+            margin-top: 4rem;
         }
 
         .section-header {
-            display: flex;
-            align-items: baseline;
-            gap: 0.75rem;
-            padding-bottom: 0.75rem;
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid var(--color-line);
+            text-align: center;
+            margin-bottom: 2rem;
         }
 
         .section-title {
-            font-size: 1.5rem;
+            font-size: 1.75rem;
             font-weight: 400;
+        }
+
+        /* Petit trait d'accent centré sous le titre */
+        .section-title::after {
+            content: "";
+            display: block;
+            width: 48px;
+            height: 4px;
+            margin: 0.6rem auto 0;
+            border-radius: 999px;
+            background: var(--accent);
         }
 
         .section-intro {
             color: var(--color-text-muted);
             font-size: 0.95rem;
+            margin-top: 0.6rem;
         }
 
+        /* Grille centrée : une dernière ligne incomplète reste au milieu */
         .tool-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 1.5rem;
         }
 
         .tool-card {
+            --cols: 3;
+            flex: 0 1 calc((100% - (var(--cols) - 1) * 1.5rem) / var(--cols));
+            position: relative;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
+            align-items: center;
+            text-align: center;
             background: var(--color-card);
             border: 1px solid var(--color-line);
             border-radius: var(--radius-card);
-            padding: 1.5rem;
+            padding: 2rem 1.5rem 1.5rem;
             text-decoration: none;
             color: var(--color-text);
             transition: var(--transition);
             box-shadow: var(--shadow);
         }
 
+        /* Barre d'accent qui s'étire au survol */
+        .tool-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 30%;
+            height: 4px;
+            border-radius: 0 0 4px 4px;
+            background: var(--accent);
+            transform: translateX(-50%);
+            transition: width 0.4s ease;
+        }
+
         .tool-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-6px);
             box-shadow: var(--shadow-hover);
             background: var(--color-card-hover);
+            border-color: var(--accent);
+        }
+
+        .tool-card:hover::before {
+            width: 100%;
+        }
+
+        .tool-card:active {
+            transform: translateY(-2px) scale(0.98);
         }
 
         .tool-card:focus-visible,
         .quick-nav a:focus-visible {
-            outline: 2px solid var(--color-text);
+            outline: 2px solid var(--accent);
             outline-offset: 3px;
         }
 
         .tool-icon {
-            font-size: 2.5rem;
+            display: grid;
+            place-items: center;
+            width: 4.5rem;
+            height: 4.5rem;
             margin-bottom: 1rem;
-            display: block;
+            border-radius: 50%;
+            background: var(--accent-soft);
+            font-size: 2.2rem;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .tool-card:hover .tool-icon {
+            transform: scale(1.12) rotate(-6deg);
         }
 
         .tool-name {
@@ -184,31 +271,48 @@
         .tool-description {
             color: var(--color-text-muted);
             font-size: 0.9rem;
-            line-height: 1.4;
+            line-height: 1.5;
             flex: 1;
         }
 
         .tags {
             display: flex;
             flex-wrap: wrap;
+            justify-content: center;
             gap: 0.4rem;
             margin-top: 1rem;
             list-style: none;
         }
 
         .tags li {
-            background: var(--color-tag-bg);
-            color: var(--color-text-muted);
+            background: var(--accent-soft);
+            color: var(--accent);
             border-radius: var(--radius-small);
             padding: 0.15rem 0.6rem;
             font-size: 0.75rem;
+        }
+
+        /* « Ouvrir → » apparaît en bas de carte */
+        .tool-card::after {
+            content: "Ouvrir →";
+            margin-top: 1.25rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--accent);
+            opacity: 0.6;
+            transition: var(--transition);
+        }
+
+        .tool-card:hover::after {
+            opacity: 1;
+            letter-spacing: 0.02em;
         }
 
         .coming-soon {
             text-align: center;
             color: var(--color-text-muted);
             font-style: italic;
-            margin-top: 3rem;
+            margin-top: 4rem;
         }
 
         /* ---------- Pied de page ---------- */
@@ -220,34 +324,65 @@
             font-size: 0.9rem;
         }
 
+        /* ---------- Animations d'apparition ---------- */
+        @keyframes fade-up {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: none; }
+        }
+
+        .header > * {
+            animation: fade-up 0.6s ease both;
+        }
+        .header > :nth-child(2) { animation-delay: 0.1s; }
+        .header > :nth-child(3) { animation-delay: 0.2s; }
+
+        /* Masqué seulement si le JavaScript est actif, pour ne jamais cacher le contenu */
+        .js .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+        }
+
+        .js .reveal.is-visible {
+            animation: fade-up 0.6s ease both;
+            animation-delay: calc(var(--i, 0) * 80ms);
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 2rem;
             }
 
-            .section-header {
-                flex-direction: column;
-                gap: 0.25rem;
-            }
-
-            .tool-grid {
-                grid-template-columns: repeat(2, 1fr);
+            .tool-card {
+                --cols: 2;
             }
         }
 
         @media (max-width: 480px) {
-            .tool-grid {
-                grid-template-columns: 1fr;
+            .tool-card {
+                --cols: 1;
             }
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .tool-card,
-            .quick-nav a {
-                transition: none;
+            html {
+                scroll-behavior: auto;
             }
 
-            .tool-card:hover {
+            *,
+            *::before,
+            *::after {
+                animation: none !important;
+                transition: none !important;
+            }
+
+            .js .reveal {
+                opacity: 1;
+                transform: none;
+            }
+
+            .tool-card:hover,
+            .tool-card:hover .tool-icon,
+            .quick-nav a:hover {
                 transform: none;
             }
         }
@@ -262,20 +397,21 @@
         </div>
         <p class="subtitle">Outils numériques pour l'école primaire</p>
         <p class="mission">Mission Numérique Éducatif 76</p>
-
-        <nav class="quick-nav" aria-label="Rubriques">
-            <a href="#en-classe">🧑‍🏫 En classe</a>
-            <a href="#suivi">📊 Suivre et évaluer</a>
-            <a href="#direction">🏫 Direction d'école</a>
-        </nav>
     </header>
+
+    <nav class="quick-nav" aria-label="Rubriques">
+        <a href="#en-classe" class="accent-classe">🧑‍🏫 En classe</a>
+        <a href="#outils-classe" class="accent-outils">🧰 Outils pour la classe</a>
+        <a href="#suivi" class="accent-suivi">📊 Suivre et évaluer</a>
+        <a href="#direction" class="accent-direction">🏫 Direction d'école</a>
+    </nav>
 
     <main class="main-content">
 
-        <section class="section" id="en-classe">
+        <section class="section accent-classe" id="en-classe">
             <div class="section-header">
                 <h2 class="section-title">🧑‍🏫 En classe</h2>
-                <p class="section-intro">Des outils à utiliser avec les élèves</p>
+                <p class="section-intro">Des ressources pour faire apprendre les élèves</p>
             </div>
             <div class="tool-grid">
                 <a href="./prompteurs/index.html" class="tool-card">
@@ -305,17 +441,32 @@
                     <p class="tool-description">250 consignes utilisables en classe en allemand, anglais, espagnol et portugais.</p>
                     <ul class="tags"><li>Langues vivantes</li></ul>
                 </a>
+            </div>
+        </section>
 
+        <section class="section accent-outils" id="outils-classe">
+            <div class="section-header">
+                <h2 class="section-title">🧰 Outils pour la classe</h2>
+                <p class="section-intro">Des utilitaires pour animer et gérer la classe au quotidien</p>
+            </div>
+            <div class="tool-grid">
                 <a href="./generateur-etiquettes-deplacables/" class="tool-card">
                     <span class="tool-icon">🏷️</span>
                     <div class="tool-name">Générateur d'étiquettes</div>
                     <p class="tool-description">Étiquettes déplaçables (textes, images…) pour l'écran numérique interactif.</p>
                     <ul class="tags"><li>Tous domaines</li><li>ENI</li></ul>
                 </a>
+
+                <a href="./randomizer/index.html" class="tool-card">
+                    <span class="tool-icon">🎲</span>
+                    <div class="tool-name">Randomizer</div>
+                    <p class="tool-description">Tirage au sort d'un nom dans une liste importable, avec durée réglable et confettis.</p>
+                    <ul class="tags"><li>Tirage au sort</li><li>ENI</li></ul>
+                </a>
             </div>
         </section>
 
-        <section class="section" id="suivi">
+        <section class="section accent-suivi" id="suivi">
             <div class="section-header">
                 <h2 class="section-title">📊 Suivre et évaluer</h2>
                 <p class="section-intro">Suivre les progrès des élèves et y répondre</p>
@@ -337,7 +488,7 @@
             </div>
         </section>
 
-        <section class="section" id="direction">
+        <section class="section accent-direction" id="direction">
             <div class="section-header">
                 <h2 class="section-title">🏫 Direction d'école</h2>
                 <p class="section-intro">Organiser la vie de l'école</p>
@@ -357,12 +508,46 @@
             </div>
         </section>
 
-        <p class="coming-soon">D'autres outils arriveront bientôt !</p>
+        <p class="coming-soon reveal">D'autres outils arriveront bientôt !</p>
     </main>
 
     <footer class="footer">
         Académie de Normandie - Seine-Maritime (76) • Conçu pour faciliter l'apprentissage
     </footer>
 
+    <script>
+        // Apparition progressive des cartes et rubriques au défilement
+        const revealables = document.querySelectorAll('.section-header, .tool-card, .coming-soon');
+        document.querySelectorAll('.tool-grid').forEach(grid => {
+            [...grid.children].forEach((card, i) => card.style.setProperty('--i', i));
+        });
+        revealables.forEach(el => el.classList.add('reveal'));
+
+        if ('IntersectionObserver' in window) {
+            const revealObserver = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        revealObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            revealables.forEach(el => revealObserver.observe(el));
+
+            // Met en surbrillance la rubrique affichée dans la navigation
+            const navLinks = document.querySelectorAll('.quick-nav a');
+            const sectionObserver = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => link.classList.toggle(
+                            'is-active', link.getAttribute('href') === '#' + entry.target.id));
+                    }
+                });
+            }, { rootMargin: '-40% 0px -55% 0px' });
+            document.querySelectorAll('.section').forEach(section => sectionObserver.observe(section));
+        } else {
+            revealables.forEach(el => el.classList.add('is-visible'));
+        }
+    </script>
 </body>
 </html>
