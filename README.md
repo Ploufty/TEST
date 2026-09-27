@@ -1,14 +1,18 @@
 # Randomizer — Tirage au sort
 
-Petite application web statique pour tirer un nom au sort dans une liste (import `.txt`, durée de tirage réglable, animation avec confettis).
+Application web statique de tirage au sort pour la classe, à plusieurs onglets : **Noms** (liste importable, historique, confettis) et **Dés** (styles Points / Chiffres / Doigts, 1 à 6 dés). D'autres onglets (Images, Sons) sont prévus.
+
+Pour l'historique complet du projet, les décisions prises et ce qu'il reste à faire, voir [`NOTES.md`](./NOTES.md).
 
 ## Structure
 
 ```
-index.html        Page principale
-css/style.css      Styles
-scripts/randomizer.js  Logique de l'application
-icon.png           Icône / favicon
+index.html                    Page principale
+css/style.css                 Styles
+scripts/randomizer.js         Logique de l'application
+assets/dice-hands/1.png..6.png  Illustrations des dés "Doigts"
+icon.png                      Icône / favicon
+NOTES.md                      Mémoire du projet (historique, décisions, suite)
 ```
 
 ## Utiliser en local
