@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minuteur de classe</title>
+<link rel="icon" href="icon.png">
+<style>
+:root { --bg:#0b1020; --fg:#f5f7ff; --ok:#3ddc97; --warn:#ffb020; --bad:#ff4d5e; --btn:#1b2340; }
+* { box-sizing:border-box; }
+html,body { margin:0; height:100%; background:var(--bg); color:var(--fg); font-family:system-ui,Arial,sans-serif; user-select:none; }
+body { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3vh; transition:background .4s; }
+body.warn { --c:var(--warn); } body.bad { --c:var(--bad); } body.done { background:#3a0d14; animation:blink 1s infinite; }
+@keyframes blink { 50% { background:#7a1020; } }
+#time { font-size:min(34vw,52vh); font-weight:800; font-variant-numeric:tabular-nums; line-height:1; letter-spacing:-.02em; color:var(--c,var(--ok)); text-shadow:0 0 .15em color-mix(in srgb,var(--c,var(--ok)) 40%,transparent); }
+#bar { width:80vw; height:2.5vh; background:var(--btn); border-radius:99px; overflow:hidden; }
+#fill { height:100%; width:100%; background:var(--c,var(--ok)); transition:width .25s linear; }
+.row { display:flex; gap:2vw; flex-wrap:wrap; justify-content:center; }
+button { font:700 max(2.4vw,18px)/1 inherit; font-family:inherit; color:var(--fg); background:var(--btn); border:0; border-radius:1.2vw; padding:1.6vw 3vw; cursor:pointer; }
+button:active { transform:scale(.96); }
+#start { background:var(--ok); color:#06210f; font-size:max(3.2vw,22px); padding:1.6vw 5vw; }
+#stop { background:var(--bad); font-size:max(3.2vw,22px); padding:1.6vw 5vw; }
+#reset { font-size:max(3.2vw,22px); padding:1.6vw 5vw; }
+.presets button { font-size:max(1.8vw,15px); padding:1vw 2vw; opacity:.85; }
+</style>
+</head>
+<body>
+<div id="time">05:00</div>
+<div id="bar"><div id="fill"></div></div>
+<div class="row">
+  <button id="start">▶ Start</button>
+  <button id="stop">■ Stop</button>
+  <button id="reset">↺ Revenir à <span id="resetLabel">5:00</span></button>
+</div>
+<div class="row presets" id="presets">
+  <button data-d="-60">−1 min</button>
+  <button data-set="60">1 min</button><button data-set="300">5 min</button><button data-set="600">10 min</button>
+  <button data-set="900">15 min</button><button data-set="1800">30 min</button>
+  <button data-d="60">+1 min</button>
+</div>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var base = 300, left = 300, endAt = 0, timer = null;
+
+  function fmt(s) { s = Math.max(0, Math.ceil(s)); var m = Math.floor(s / 60), r = s % 60; return (m < 10 ? '0' : '') + m + ':' + (r < 10 ? '0' : '') + r; }
+
+  function draw() {
+    $('time').textContent = fmt(left);
+    $('resetLabel').textContent = fmt(base).replace(/^0/, '');
+    $('fill').style.width = (base ? Math.max(0, left / base) * 100 : 0) + '%';
+    document.title = fmt(left) + ' — Minuteur';
+    var b = document.body;
+    b.classList.toggle('warn', left <= 60 && left > 10);
+    b.classList.toggle('bad', left <= 10);
+    b.classList.toggle('done', left <= 0 && base > 0 && !timer && finished);
+  }
+
+  var finished = false;
+  function beep() {
+    try {
+      var c = new (window.AudioContext || window.webkitAudioContext)(), t = c.currentTime;
+      for (var i = 0; i < 3; i++) {
+        var o = c.createOscillator(), g = c.createGain();
+        o.frequency.value = 880; o.connect(g); g.connect(c.destination);
+        g.gain.setValueAtTime(.3, t + i * .5); g.gain.setValueAtTime(0, t + i * .5 + .3);
+        o.start(t + i * .5); o.stop(t + i * .5 + .3);
+      }
+    } catch (e) {}
+  }
+
+  function stop() { clearInterval(timer); timer = null; }
+  function tick() {
+    left = (endAt - Date.now()) / 1000;
+    if (left <= 0) { left = 0; stop(); finished = true; beep(); }
+    draw();
+  }
+  function start() {
+    if (timer) return;
+    if (left <= 0) left = base;
+    finished = false;
+    endAt = Date.now() + left * 1000;
+    timer = setInterval(tick, 200);
+    tick();
+  }
+  function setBase(s) { stop(); finished = false; base = left = Math.max(10, Math.min(5999, s)); draw(); }
+
+  $('start').onclick = start;
+  $('stop').onclick = function () { stop(); finished = false; draw(); };
+  $('reset').onclick = function () { setBase(base); };
+  $('presets').onclick = function (e) {
+    var d = e.target.dataset;
+    if (d.set) setBase(+d.set); else if (d.d) setBase(base + +d.d);
+  };
+  document.onkeydown = function (e) {
+    if (e.code === 'Space') { e.preventDefault(); timer ? $('stop').click() : start(); }
+    if (e.key === 'r') $('reset').click();
+  };
+  draw();
+})();
+</script>
+</body>
+</html>
