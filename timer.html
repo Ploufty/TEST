@@ -6,95 +6,141 @@
 <title>Minuteur de classe</title>
 <link rel="icon" href="icon.png">
 <style>
-:root { --bg:#0b1020; --fg:#f5f7ff; --ok:#3ddc97; --warn:#ffb020; --bad:#ff4d5e; --btn:#1b2340; }
+:root { --bg:#0a0f1f; --fg:#f4f6ff; --ok:#3ddc97; --warn:#ffb020; --bad:#ff4d5e; --rest:#5aa9ff; --card:#161d38; --muted:#8c97c0; }
 * { box-sizing:border-box; }
-html,body { margin:0; height:100%; background:var(--bg); color:var(--fg); font-family:system-ui,Arial,sans-serif; user-select:none; }
-body { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3vh; transition:background .4s; }
-body.warn { --c:var(--warn); } body.bad { --c:var(--bad); } body.done { background:#3a0d14; animation:blink 1s infinite; }
+html,body { margin:0; height:100%; color:var(--fg); font-family:system-ui,"Segoe UI",Arial,sans-serif; user-select:none; overflow:hidden; }
+body { --c:var(--ok); display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:3vh 3vw;
+  background:radial-gradient(ellipse at 50% 40%, color-mix(in srgb,var(--c) 18%,var(--bg)) 0%, var(--bg) 70%); }
+body.rest { --c:var(--rest); } body.warn { --c:var(--warn); } body.bad { --c:var(--bad); }
+body.done { animation:blink 1s infinite; }
 @keyframes blink { 50% { background:#7a1020; } }
-#time { font-size:min(34vw,52vh); font-weight:800; font-variant-numeric:tabular-nums; line-height:1; letter-spacing:-.02em; color:var(--c,var(--ok)); text-shadow:0 0 .15em color-mix(in srgb,var(--c,var(--ok)) 40%,transparent); }
-#bar { width:80vw; height:2.5vh; background:var(--btn); border-radius:99px; overflow:hidden; }
-#fill { height:100%; width:100%; background:var(--c,var(--ok)); transition:width .25s linear; }
-.row { display:flex; gap:2vw; flex-wrap:wrap; justify-content:center; }
-button { font:700 max(2.4vw,18px)/1 inherit; font-family:inherit; color:var(--fg); background:var(--btn); border:0; border-radius:1.2vw; padding:1.6vw 3vw; cursor:pointer; }
-button:active { transform:scale(.96); }
-#start { background:var(--ok); color:#06210f; font-size:max(3.2vw,22px); padding:1.6vw 5vw; }
-#stop { background:var(--bad); font-size:max(3.2vw,22px); padding:1.6vw 5vw; }
-#reset { font-size:max(3.2vw,22px); padding:1.6vw 5vw; }
-.presets button { font-size:max(1.8vw,15px); padding:1vw 2vw; opacity:.85; }
+.modes { display:flex; gap:.6vw; padding:.6vw; background:var(--card); border-radius:99px; flex-wrap:wrap; justify-content:center; }
+.modes button { background:none; color:var(--muted); font-size:max(1.7vw,14px); padding:.9vw 2vw; border-radius:99px; }
+.modes button.on { background:var(--c); color:#07101f; }
+main { display:flex; flex-direction:column; align-items:center; gap:2vh; width:100%; }
+#label { font-size:max(3.2vw,20px); font-weight:700; letter-spacing:.3em; text-transform:uppercase; color:var(--c); min-height:1.2em; }
+#time { font-size:min(33vw,50vh); font-weight:800; font-variant-numeric:tabular-nums; line-height:1; letter-spacing:-.03em; color:var(--c);
+  text-shadow:0 0 .2em color-mix(in srgb,var(--c) 45%,transparent); }
+#bar { width:84vw; height:2.4vh; background:var(--card); border-radius:99px; overflow:hidden; }
+#fill { height:100%; width:100%; background:var(--c); border-radius:99px; transition:width .25s linear; }
+.row { display:flex; gap:1.6vw; flex-wrap:wrap; justify-content:center; }
+button { font:inherit; font-weight:700; color:var(--fg); background:var(--card); border:0; border-radius:1.4vw; cursor:pointer; transition:transform .1s; }
+button:active { transform:scale(.95); }
+.big { font-size:max(3vw,20px); padding:1.4vw 4.5vw; }
+#start { background:var(--ok); color:#05200f; } #stop { background:var(--bad); }
+.presets { margin-top:2vh; }
+.presets button { font-size:max(1.7vw,14px); padding:.9vw 1.8vw; color:var(--muted); }
+.presets button:hover { color:var(--fg); }
+.presets[hidden] { display:none; }
 </style>
 </head>
 <body>
-<div id="time">05:00</div>
-<div id="bar"><div id="fill"></div></div>
-<div class="row">
-  <button id="start">▶ Start</button>
-  <button id="stop">■ Stop</button>
-  <button id="reset">↺ Revenir à <span id="resetLabel">5:00</span></button>
-</div>
-<div class="row presets" id="presets">
-  <button data-d="-60">−1 min</button>
-  <button data-set="60">1 min</button><button data-set="300">5 min</button><button data-set="600">10 min</button>
-  <button data-set="900">15 min</button><button data-set="1800">30 min</button>
-  <button data-d="60">+1 min</button>
+<nav class="modes" id="modes"></nav>
+<main>
+  <div id="label">&nbsp;</div>
+  <div id="time">05:00</div>
+  <div id="bar"><div id="fill"></div></div>
+</main>
+<div>
+  <div class="row">
+    <button class="big" id="start">▶ Start</button>
+    <button class="big" id="stop">■ Stop</button>
+    <button class="big" id="reset">↺ Revenir à <span id="resetLabel"></span></button>
+  </div>
+  <div class="row presets" id="presets">
+    <button data-d="-60">−1 min</button>
+    <button data-set="60">1 min</button><button data-set="300">5 min</button><button data-set="600">10 min</button>
+    <button data-set="900">15 min</button><button data-set="1800">30 min</button>
+    <button data-d="60">+1 min</button>
+  </div>
 </div>
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
-  var base = 300, left = 300, endAt = 0, timer = null;
+  // phases: [nom, secondes]; plusieurs phases = cycle qui boucle
+  var modes = {
+    timer:  { name: 'Minuteur', p: [['Minuteur', 300]] },
+    pomo:   { name: 'Pomodoro 25/5', p: [['Travail', 1500], ['Pause', 300]] },
+    focus:  { name: 'Focus 45/10', p: [['Travail', 2700], ['Pause', 600]] },
+    sprint: { name: 'Sprint 10/2', p: [['Sprint', 600], ['Pause', 120]] },
+    chrono: { name: 'Chronomètre', up: 1 }
+  };
+  var mode = 'timer', i = 0, base = 300, left = 300, ref = 0, timer = null;
 
-  function fmt(s) { s = Math.ceil(s); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }
+  function fmt(s, up) {
+    s = up ? Math.floor(s) : Math.ceil(s);
+    return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+  }
+  function load() { var m = modes[mode]; base = m.up ? 0 : m.p[i][1]; left = base; }
 
   function draw() {
-    $('time').textContent = fmt(left);
-    $('resetLabel').textContent = fmt(base).replace(/^0/, '');
-    $('fill').style.width = left / base * 100 + '%';
-    document.title = fmt(left) + ' — Minuteur';
-    var b = document.body;
-    b.classList.toggle('warn', left <= 60 && left > 10);
-    b.classList.toggle('bad', left <= 10);
-    b.classList.toggle('done', left <= 0);
+    var m = modes[mode], b = document.body, rest = !m.up && m.p[i][0] === 'Pause';
+    $('time').textContent = fmt(left, m.up);
+    $('label').textContent = m.up ? 'Chronomètre' : m.p[i][0];
+    $('resetLabel').textContent = m.up ? '00:00' : fmt(m.p[0][1]).replace(/^0/, '');
+    $('fill').style.width = (m.up ? 100 : left / base * 100) + '%';
+    document.title = fmt(left, m.up) + ' — Minuteur';
+    b.classList.toggle('rest', rest);
+    b.classList.toggle('warn', !m.up && left <= 60 && left > 10);
+    b.classList.toggle('bad', !m.up && left <= 10);
+    b.classList.toggle('done', !m.up && left <= 0);
+    $('presets').hidden = mode !== 'timer';
+    document.querySelectorAll('.modes button').forEach(function (x) { x.classList.toggle('on', x.dataset.m === mode); });
   }
 
-  function beep() {
+  function beep(n) {
     try {
       var c = new (window.AudioContext || window.webkitAudioContext)(), t = c.currentTime;
-      for (var i = 0; i < 3; i++) {
+      for (var k = 0; k < n; k++) {
         var o = c.createOscillator(), g = c.createGain();
         o.frequency.value = 880; o.connect(g); g.connect(c.destination);
-        g.gain.setValueAtTime(.3, t + i * .5); g.gain.setValueAtTime(0, t + i * .5 + .3);
-        o.start(t + i * .5); o.stop(t + i * .5 + .3);
+        g.gain.setValueAtTime(.3, t + k * .5); g.gain.setValueAtTime(0, t + k * .5 + .3);
+        o.start(t + k * .5); o.stop(t + k * .5 + .3);
       }
     } catch (e) {}
   }
 
   function stop() { clearInterval(timer); timer = null; }
   function tick() {
-    left = (endAt - Date.now()) / 1000;
-    if (left <= 0) { left = 0; stop(); beep(); }
+    var m = modes[mode];
+    if (m.up) left = (Date.now() - ref) / 1000;
+    else {
+      left = (ref - Date.now()) / 1000;
+      if (left <= 0) {
+        if (m.p.length > 1) { i = (i + 1) % m.p.length; load(); ref = Date.now() + left * 1000; beep(2); }
+        else { left = 0; stop(); beep(3); }
+      }
+    }
     draw();
   }
   function start() {
     if (timer) return;
-    if (left <= 0) left = base;
-    endAt = Date.now() + left * 1000;
+    var m = modes[mode];
+    if (!m.up && left <= 0) left = base;
+    ref = Date.now() + (m.up ? -left : left) * 1000;
     timer = setInterval(tick, 200);
     tick();
   }
-  function setBase(s) { stop(); base = left = Math.max(10, Math.min(5999, s)); draw(); }
+  function reset() { stop(); i = 0; load(); draw(); }
+  function setMode(k) { mode = k; reset(); }
+  function setBase(s) { modes.timer.p[0][1] = Math.max(10, Math.min(5999, s)); reset(); }
 
+  $('modes').innerHTML = Object.keys(modes).map(function (k) {
+    return '<button data-m="' + k + '">' + modes[k].name + '</button>';
+  }).join('');
+  $('modes').onclick = function (e) { if (e.target.dataset.m) setMode(e.target.dataset.m); };
   $('start').onclick = start;
   $('stop').onclick = function () { stop(); draw(); };
-  $('reset').onclick = function () { setBase(base); };
+  $('reset').onclick = reset;
   $('presets').onclick = function (e) {
     var d = e.target.dataset;
-    if (d.set) setBase(+d.set); else if (d.d) setBase(base + +d.d);
+    if (d.set) setBase(+d.set); else if (d.d) setBase(modes.timer.p[0][1] + +d.d);
   };
   document.onkeydown = function (e) {
-    if (e.code === 'Space') { e.preventDefault(); timer ? $('stop').click() : start(); }
-    if (e.key === 'r') $('reset').click();
+    if (e.code === 'Space') { e.preventDefault(); timer ? stop() : start(); draw(); }
+    if (e.key === 'r') reset();
   };
-  draw();
+  reset();
 })();
 </script>
 </body>
