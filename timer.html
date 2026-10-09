@@ -43,20 +43,19 @@ button:active { transform:scale(.96); }
   var $ = function (id) { return document.getElementById(id); };
   var base = 300, left = 300, endAt = 0, timer = null;
 
-  function fmt(s) { s = Math.max(0, Math.ceil(s)); var m = Math.floor(s / 60), r = s % 60; return (m < 10 ? '0' : '') + m + ':' + (r < 10 ? '0' : '') + r; }
+  function fmt(s) { s = Math.ceil(s); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }
 
   function draw() {
     $('time').textContent = fmt(left);
     $('resetLabel').textContent = fmt(base).replace(/^0/, '');
-    $('fill').style.width = (base ? Math.max(0, left / base) * 100 : 0) + '%';
+    $('fill').style.width = left / base * 100 + '%';
     document.title = fmt(left) + ' — Minuteur';
     var b = document.body;
     b.classList.toggle('warn', left <= 60 && left > 10);
     b.classList.toggle('bad', left <= 10);
-    b.classList.toggle('done', left <= 0 && base > 0 && !timer && finished);
+    b.classList.toggle('done', left <= 0);
   }
 
-  var finished = false;
   function beep() {
     try {
       var c = new (window.AudioContext || window.webkitAudioContext)(), t = c.currentTime;
@@ -72,21 +71,20 @@ button:active { transform:scale(.96); }
   function stop() { clearInterval(timer); timer = null; }
   function tick() {
     left = (endAt - Date.now()) / 1000;
-    if (left <= 0) { left = 0; stop(); finished = true; beep(); }
+    if (left <= 0) { left = 0; stop(); beep(); }
     draw();
   }
   function start() {
     if (timer) return;
     if (left <= 0) left = base;
-    finished = false;
     endAt = Date.now() + left * 1000;
     timer = setInterval(tick, 200);
     tick();
   }
-  function setBase(s) { stop(); finished = false; base = left = Math.max(10, Math.min(5999, s)); draw(); }
+  function setBase(s) { stop(); base = left = Math.max(10, Math.min(5999, s)); draw(); }
 
   $('start').onclick = start;
-  $('stop').onclick = function () { stop(); finished = false; draw(); };
+  $('stop').onclick = function () { stop(); draw(); };
   $('reset').onclick = function () { setBase(base); };
   $('presets').onclick = function (e) {
     var d = e.target.dataset;
