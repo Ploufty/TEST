@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QR Facile</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><h1>QR<span>Facile</span></h1><p>Générez un QR code en quelques secondes. Tout reste dans votre navigateur.</p></header>
+<main>
+  <section class="card">
+    <div class="tabs" id="tabs" role="tablist"></div>
+    <div id="fields"></div>
+
+    <details>
+      <summary>Personnaliser</summary>
+      <div class="opts">
+        <label>Couleur <input type="color" id="fg" value="#1a2b4c"></label>
+        <label>Fond <input type="color" id="bg" value="#ffffff"></label>
+        <label>Correction d'erreur
+          <select id="ec"><option value="L">Basse</option><option value="M" selected>Moyenne</option><option value="Q">Haute</option><option value="H">Maximale</option></select>
+        </label>
+        <label>Style
+          <select id="shape"><option value="square">Carrés</option><option value="round">Arrondis</option></select>
+        </label>
+        <label class="wide">Logo au centre (optionnel)
+          <input type="file" id="logo" accept="image/*">
+        </label>
+        <label class="wide">Texte sous le QR (optionnel)
+          <input type="text" id="caption" maxlength="40" placeholder="Scannez-moi">
+        </label>
+      </div>
+    </details>
+  </section>
+
+  <section class="card preview">
+    <div id="out" class="out"><p class="empty">Remplissez le formulaire</p></div>
+    <div class="actions">
+      <button id="dlPng" class="primary" disabled>PNG</button>
+      <button id="dlSvg" disabled>SVG</button>
+      <button id="copy" disabled>Copier</button>
+      <button id="print" disabled>Imprimer</button>
+    </div>
+    <p id="msg" class="msg" aria-live="polite"></p>
+  </section>
+</main>
+<script src="qrcode.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
