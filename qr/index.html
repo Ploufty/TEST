@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header><h1>QR<span>Facile</span></h1><p>Générez un QR code en quelques secondes. Tout reste dans votre navigateur.</p></header>
+<header><h1>QR<span>Facile</span></h1><p>Générez un QR code en quelques secondes. Tout reste dans votre navigateur. <a href="#aide">Aide</a></p></header>
 <main>
   <section class="card">
     <div class="tabs" id="tabs" role="tablist"></div>
@@ -32,10 +32,20 @@
         </label>
       </div>
     </details>
+
+    <details id="batch">
+      <summary>Génération en lot (CSV)</summary>
+      <label>Une ligne par QR code : <code>contenu;nom du fichier</code> (le nom est facultatif)
+        <textarea id="lines" placeholder="https://exemple.fr;accueil&#10;https://exemple.fr/rh;rh"></textarea>
+      </label>
+      <label>ou importer un fichier .csv / .txt <input type="file" id="csv" accept=".csv,.txt"></label>
+      <button id="zip" type="button" class="primary full">Télécharger l'archive ZIP</button>
+    </details>
   </section>
 
   <section class="card preview">
     <div id="out" class="out"><p class="empty">Remplissez le formulaire</p></div>
+    <label class="fname">Nom du fichier <input type="text" id="fname" value="qrcode" maxlength="60"></label>
     <div class="actions">
       <button id="dlPng" class="primary" disabled>PNG</button>
       <button id="dlSvg" disabled>SVG</button>
@@ -45,6 +55,39 @@
     <p id="msg" class="msg" aria-live="polite"></p>
   </section>
 </main>
+<section id="aide" class="card help">
+  <h2>Aide</h2>
+  <details open><summary>Créer un QR code</summary>
+    <ol><li>Choisissez un type : Lien, Texte, Wi-Fi, Contact, E-mail ou Téléphone.</li>
+    <li>Remplissez les champs : l'aperçu se met à jour tout seul.</li>
+    <li>Testez-le avec votre téléphone avant de l'imprimer ou de le diffuser.</li></ol></details>
+  <details><summary>Les types de QR code</summary>
+    <ul><li><b>Lien</b> : ouvre un site (le <code>https://</code> est ajouté si oublié).</li>
+    <li><b>Texte</b> : affiche un message libre.</li>
+    <li><b>Wi-Fi</b> : le téléphone propose de se connecter au réseau, sans saisir le mot de passe.</li>
+    <li><b>Contact</b> : ajoute une fiche (nom, société, téléphone, e-mail) au répertoire.</li>
+    <li><b>E-mail</b> : ouvre un message pré-rempli.</li>
+    <li><b>Téléphone</b> : lance l'appel.</li></ul></details>
+  <details><summary>Personnaliser</summary>
+    <ul><li><b>Couleurs</b> : gardez un fort contraste, QR foncé sur fond clair.</li>
+    <li><b>Correction d'erreur</b> : plus elle est haute, plus le QR résiste aux dégâts, mais plus il est dense.</li>
+    <li><b>Logo</b> : petite image au centre (forcée en correction maximale). Vérifiez toujours le scan.</li>
+    <li><b>Texte sous le QR</b> : légende de 40 caractères maximum.</li></ul></details>
+  <details><summary>Exporter</summary>
+    <ul><li><b>PNG</b> : image pour documents et écrans. <b>SVG</b> : vectoriel, idéal pour l'impression grand format.</li>
+    <li><b>Copier</b> : place l'image dans le presse-papiers. <b>Imprimer</b> : ouvre la boîte d'impression.</li>
+    <li>Le champ « Nom du fichier » définit le nom des téléchargements.</li></ul></details>
+  <details><summary>Génération en lot</summary>
+    <p>Dans « Génération en lot », saisissez une ligne par QR code, au format <code>contenu;nom du fichier</code>. Vous pouvez aussi coller depuis un tableur (colonnes séparées par une tabulation) ou importer un .csv. Maximum 200 lignes. Le ZIP contient chaque QR en PNG et SVG, avec les couleurs et le style choisis plus haut.</p>
+    <pre>https://exemple.fr;accueil
+https://exemple.fr/rh;rh
+Bonjour !;message</pre></details>
+  <details><summary>Problèmes fréquents</summary>
+    <ul><li><b>« Contenu trop long »</b> : raccourcissez le texte ou le lien.</li>
+    <li><b>Le QR ne se scanne pas</b> : augmentez le contraste, retirez le logo ou montez la correction d'erreur.</li>
+    <li><b>Copier ne marche pas</b> : certains navigateurs l'interdisent, utilisez PNG.</li>
+    <li><b>Confidentialité</b> : rien n'est envoyé sur un serveur, tout se calcule dans votre navigateur.</li></ul></details>
+</section>
 <script src="qrcode.js"></script>
 <script src="app.js"></script>
 </body>
