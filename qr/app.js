@@ -61,7 +61,7 @@
   function makeSVG(data) {
     var ec = logoURL ? 'H' : $('ec').value;
     var q = qrcode(0, ec); q.addData(data); q.make();
-    var n = q.getModuleCount(), m = 4, size = n + 2 * m, fg = $('fg').value, bg = $('bg').value;
+    var n = q.getModuleCount(), m = 4, size = n + 2 * m, fg = $('fg').value, bg = $('bgcol').value;
     var round = $('shape').value === 'round', cap = $('caption').value.trim();
     var capH = cap ? 3 : 0, h = size + capH;
     var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + h + '" shape-rendering="' + (round ? 'auto' : 'crispEdges') + '">' +
@@ -166,6 +166,8 @@
     })();
   };
 
-  document.addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(update, 120); });
+  ['tabs', 'fields', 'fg', 'bgcol', 'ec', 'shape', 'caption'].forEach(function (id) {
+    $(id).addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(update, 120); });
+  });
   renderTabs(); renderFields(); update();
 })();
