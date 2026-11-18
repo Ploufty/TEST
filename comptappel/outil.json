@@ -2,6 +2,6 @@
   "titre": "Cahier d'appel",
   "description": "Pourcentage de présents et d'absents du cahier d'appel, par mois, pour la classe et par niveau.",
   "icone": "📋",
-  "categorie": "direction",
+  "categorie": "vie-de-classe",
   "page": "index.html"
 }
