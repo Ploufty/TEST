@@ -6,8 +6,6 @@
   const EXTRA_LEVELS = ['TPS', 'ULIS', 'UPE2A', 'UEMA']; // rubrique « TPS et dispositifs »
   const LEVELS = ['TPS', ...MAIN_LEVELS, 'ULIS', 'UPE2A', 'UEMA']; // ordre d'affichage
   const MOIS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-  // Départ : l'élève est compté jusqu'au jour du départ inclus. Mettre false pour ne plus le compter ce jour-là.
-  const DEPART_INCLUS = true;
   const MAX = { eleves: 60, abs: 5000, days: 80, moves: 30, off: 31, label: 60 };
 
   const YEARS = Object.keys(Cal.CALENDARS);
@@ -59,25 +57,8 @@
     };
   }
 
-  // Ancien format v2 : zone, rythme et niveaux globaux ; moves = chaînes (date d'arrivée) ou {t,date}
-  function migrate(raw) {
-    if (!isObj(raw) || raw.version === 3) return raw;
-    const levels = isObj(raw.levels) ? Object.keys(raw.levels).filter(l => raw.levels[l] === true) : [];
-    const months = {};
-    for (const [mk, m] of Object.entries(isObj(raw.months) ? raw.months : {})) {
-      if (!isObj(m)) continue;
-      const lv = {};
-      for (const [l, d] of Object.entries(isObj(m.lv) ? m.lv : {})) {
-        if (isObj(d)) lv[l] = Object.assign({}, d, { moves: (Array.isArray(d.moves) ? d.moves : []).map(x => typeof x === 'string' ? { t: 'a', date: x } : x) });
-      }
-      months[mk] = { zone: raw.zone, rhythm: raw.rhythm, levels, days: m.days, off: [], lv };
-    }
-    const first = Object.keys(months).sort().find(Cal.yearOf);
-    return { version: 3, year: raw.year || (first && Cal.yearOf(first)), month: raw.month, months };
-  }
-
   function normalize(raw, today) {
-    const s = fresh(today), r = migrate(raw);
+    const s = fresh(today), r = raw;
     if (!isObj(r)) return s;
     if (YEARS.includes(r.year)) s.year = r.year;
     const ms = Cal.schoolMonths(s.year);
@@ -110,7 +91,7 @@
   function moveDJ(m, mk, mv) {
     const D = daysOf(m, mk);
     if (!mv.date) return D;
-    const opts = mv.t === 'a' ? { from: mv.date } : { to: DEPART_INCLUS ? mv.date : Cal.addDays(mv.date, -1) };
+    const opts = mv.t === 'a' ? { from: mv.date } : { to: mv.date };
     return Math.min(D, autoOf(m, mk, opts));
   }
 
@@ -147,6 +128,6 @@
     return { rows, levels: LEVELS.filter(l => byLevel[l]).map(l => pct(byLevel[l])), tot: pct(all) };
   }
 
-  const api = { MAIN_LEVELS, EXTRA_LEVELS, LEVELS, MOIS, DEPART_INCLUS, MAX, YEARS, mlabel, fmt, fresh, normalize, migrate, ensureMonth, viewMonth, lvData, daysOf, moveDJ, compute, cumul };
+  const api = { MAIN_LEVELS, EXTRA_LEVELS, LEVELS, MOIS, MAX, YEARS, mlabel, fmt, fresh, normalize, ensureMonth, viewMonth, lvData, daysOf, moveDJ, compute, cumul };
   if (typeof module !== 'undefined') module.exports = api; else root.Core = api;
 })(this);

@@ -60,9 +60,7 @@
     }
   };
 
-  const ymd = d => d.toISOString().slice(0, 10);
   const daysInMonth = mk => new Date(Date.UTC(+mk.slice(0, 4), +mk.slice(5, 7), 0)).getUTCDate();
-  const addDays = (s, n) => { const d = new Date(s + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return ymd(d); };
 
   // Mois d'une année scolaire : ['2026-09', ..., '2027-07']
   function schoolMonths(year) {
@@ -110,6 +108,6 @@
 
   const zonesOf = year => Object.keys(CALENDARS[year].zones);
   const zoneLabel = z => (z === 'Corse' ? 'Corse' : 'Zone ' + z);
-  const api = { CALENDARS, zonesOf, zoneLabel, schoolMonths, yearOf, halfDays, autoDays, feriesOf, daysInMonth, addDays };
+  const api = { CALENDARS, zonesOf, zoneLabel, schoolMonths, yearOf, halfDays, autoDays, feriesOf, daysInMonth };
   if (typeof module !== 'undefined') module.exports = api; else root.Calendrier = api;
 })(this);

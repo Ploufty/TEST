@@ -1,7 +1,7 @@
 /* Interface : tableau de bord (saisie rapide). Toute valeur interpolée dans du HTML passe par esc(). */
 (function () {
   const C = Core, Cal = Calendrier;
-  const KEY = 'cahier-appel-v3', OLD_KEY = 'cahier-appel-v2';
+  const KEY = 'cahier-appel-v3';
   const $ = id => document.getElementById(id);
   const esc = v => String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const dfr = d => d.slice(8) + '/' + d.slice(5, 7);
@@ -10,7 +10,7 @@
   const storeFail = () => { $('storeWarn').hidden = false; };
   function readStore() {
     let raw = null;
-    try { raw = localStorage.getItem(KEY) || localStorage.getItem(OLD_KEY); } catch (e) { storeFail(); return null; }
+    try { raw = localStorage.getItem(KEY); } catch (e) { storeFail(); return null; }
     try { return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
   }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { storeFail(); } }

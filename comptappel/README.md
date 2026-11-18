@@ -15,7 +15,7 @@ Puis ouvrez `http://localhost:8080/comptappel/` (ou, depuis ce dossier, `http://
 ## Méthode de calcul
 
 - Demi-journées de classe du mois : lundi à vendredi hors vacances de la zone et jours fériés ; mercredi = 1 demi-journée en rythme 4,5 jours, 0 en 4 jours. Les jours sans classe saisis (grève, fermeture…) sont retirés ; le total reste modifiable à la main.
-- Présences possibles = élèves × demi-journées + demi-journées d'inscription des élèves arrivés (à partir du jour d'arrivée inclus) ou partis (jusqu'au jour du départ inclus, constante `DEPART_INCLUS` dans `scripts/core.js`).
+- Présences possibles = élèves × demi-journées + demi-journées d'inscription des élèves arrivés (à partir du jour d'arrivée inclus) ou partis (jusqu'au jour du départ inclus).
 - % absents = absences / possibles ; % présents = 100 − % absents. Cumul de l'année : somme des possibles et des absences de chaque mois.
 - Chaque mois garde ses propres réglages (zone, rythme, niveaux, total, jours sans classe).
 
@@ -34,7 +34,7 @@ index.html            Page
 css/style.css         Styles
 scripts/prefs.js      Préférences d'affichage (appliquées avant le rendu)
 scripts/calendar.js   Calendriers et calcul des demi-journées
-scripts/core.js       État, normalisation des données importées, calculs, cumul, migration
+scripts/core.js       État, normalisation des données importées, calculs, cumul
 scripts/pdf.js        Génération du PDF (sans bibliothèque)
 scripts/app.js        Interface
 tests/                Contrôles : node --test comptappel/tests/*.test.js

@@ -13,7 +13,6 @@ test('moveDJ arrivée : compté à partir du jour d’arrivée inclus', () => {
 });
 test('moveDJ départ : compté jusqu’au jour du départ inclus', () => {
   const m = month();
-  assert.strictEqual(C.DEPART_INCLUS, true);
   assert.strictEqual(C.moveDJ(m, '2026-10', { t: 'd', date: '2026-10-01' }), 2);
   assert.strictEqual(C.moveDJ(m, '2026-10', { t: 'd', date: '2026-10-06' }), 8); // 1, 2, 5, 6
 });
@@ -106,21 +105,12 @@ test('normalize : types faux, zone invalide, clés inconnues, dates hors mois', 
   assert.deepStrictEqual(m.lv.MS.moves, [{ t: 'a', date: '' }, { t: 'd', date: '2026-11-20' }]);
   for (const bad of [null, 42, 'x', [], { months: 'x' }, { version: 3, months: [] }]) assert.strictEqual(C.normalize(bad, TODAY).version, 3);
 });
-test('G : migration v2 → v3 (réglages globaux recopiés dans chaque mois, moves en chaînes)', () => {
-  const v2 = { zone: 'B', rhythm: '4.5', month: '2026-11', levels: { MS: true, GS: false, CP: true },
-    months: { '2026-10': { days: '15', lv: { MS: { n: '10', abs: '4', moves: ['2026-10-05', { t: 'd', date: '2026-10-09' }] } } }, '2026-11': { days: null, lv: {} } } };
-  const s = C.normalize(v2, '2027-09-10');
-  assert.strictEqual(s.version, 3);
-  assert.strictEqual(s.year, '2026-2027'); // déduite des mois, même si l'on est en 2027-2028
-  assert.strictEqual(s.month, '2026-11');
-  for (const mk of ['2026-10', '2026-11']) {
-    assert.strictEqual(s.months[mk].zone, 'B');
-    assert.strictEqual(s.months[mk].rhythm, '4.5');
-    assert.deepStrictEqual(s.months[mk].levels, ['MS', 'CP']);
-  }
+test('G : normalize est stable (réappliqué sur sa propre sortie, même résultat)', () => {
+  const s = C.normalize({ version: 3, year: '2026-2027', month: '2026-11', months: { '2026-10': { zone: 'B', rhythm: '4.5', levels: ['MS'], days: 15, off: [],
+    lv: { MS: { n: 10, abs: 4, moves: [{ t: 'a', date: '2026-10-05' }, { t: 'd', date: '2026-10-09' }] } } } } }, TODAY);
+  assert.strictEqual(s.months['2026-10'].zone, 'B');
   assert.strictEqual(s.months['2026-10'].days, 15);
-  assert.deepStrictEqual(s.months['2026-10'].lv.MS, { n: 10, abs: 4, moves: [{ t: 'a', date: '2026-10-05' }, { t: 'd', date: '2026-10-09' }] });
-  assert.deepStrictEqual(C.normalize(JSON.parse(JSON.stringify(s)), TODAY), s); // stable
+  assert.deepStrictEqual(C.normalize(JSON.parse(JSON.stringify(s)), TODAY), s);
 });
 test('année par défaut selon la date du jour', () => {
   assert.strictEqual(C.normalize(null, '2026-11-18').year, '2026-2027');

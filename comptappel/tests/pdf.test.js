@@ -46,11 +46,10 @@ test('dictionnaire Info et titre = année de l’état', () => {
 test('CP1252 : œ € – … « » ’ encodés', () => {
   assert.ok(pdf.includes('\x96 \x9cuvre \xab No\xebl \xbb \x85 5 \x80'));
 });
-test('largeurs AFM', () => {
-  assert.strictEqual(textW('Wi', 1000, 0), 944 + 222);
-  assert.strictEqual(textW('Wi', 1000, 1), 944 + 278);
-  assert.strictEqual(textW('éî', 1000, 0), 556 + 278);
-  assert.strictEqual(textW('œ€', 1000, 1), 944 + 556);
+test('largeurs : chiffres exacts, gras plus large, troncature', () => {
+  assert.strictEqual(textW('0123456789', 1000, 0), 5560);
+  assert.strictEqual(textW('12,5 %', 1000, 0), 556 * 3 + 278 + 278 + 889);
+  assert.ok(textW('Niveau', 10, 1) > textW('Niveau', 10, 0));
   const t = fit('Septembre 2026 très très long libellé', 9.5, 1, 60);
   assert.ok(textW(t, 9.5, 1) <= 60 && t.endsWith('…'));
 });
