@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>ComptAppel</title>
+<meta name="description" content="ComptAppel : saisie rapide des présences et absences du cahier d'appel, tout sur un écran.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700;800&amp;display=swap">
+<link rel="stylesheet" href="css/style.css">
+<script src="scripts/prefs.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Aller à la saisie</a>
+<div class="bg" aria-hidden="true"><div class="blob blob-a"></div><div class="blob blob-b"></div><div class="blob blob-c"></div><div class="dots"></div></div>
+<p class="banner container" id="storeWarn" role="alert" hidden>Sauvegarde automatique indisponible : enregistrez régulièrement un fichier.</p>
+
+<header class="top container">
+  <div class="top-l">
+    <a class="icon-btn" href="../../index.html" aria-label="Retour à l'accueil Apps1D76"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg></a>
+    <div class="brand"><b>Compt<span>Appel</span></b><small>Présences et absences du cahier d'appel</small></div>
+  </div>
+  <div class="top-m">
+    <div class="pill" role="group" aria-label="Mois">
+      <button type="button" class="icon-btn" id="prev" aria-label="Mois précédent"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
+      <label for="month" class="sr-only">Mois</label><select id="month"></select>
+      <button type="button" class="icon-btn" id="next" aria-label="Mois suivant"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+    </div>
+    <label for="year" class="sr-only">Année scolaire</label><select id="year" class="yearsel"></select>
+  </div>
+  <div class="top-r">
+    <button type="button" class="icon-btn qm" id="help-open" aria-haspopup="dialog" aria-label="Aide : comment ça marche"><span aria-hidden="true">?</span></button>
+    <button type="button" class="icon-btn" id="theme-toggle" aria-label="Activer le mode sombre">
+      <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>
+    </button>
+    <button type="button" class="icon-btn" id="settings-open" aria-haspopup="dialog" aria-label="Affichage">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="container" id="main">
+  <button type="button" class="calbtn" id="calBtn" aria-haspopup="dialog">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>
+    <span id="calTxt"></span><span class="calmod">Modifier</span>
+  </button>
+
+  <div class="tabs" role="tablist" aria-label="Vues">
+    <button type="button" role="tab" id="t-saisie" aria-controls="p-saisie" aria-selected="true">Saisie</button>
+    <button type="button" role="tab" id="t-resultat" aria-controls="p-resultat" aria-selected="false">Résultat <b id="tabPct"></b></button>
+    <button type="button" role="tab" id="t-annee" aria-controls="p-annee" aria-selected="false">Année</button>
+  </div>
+
+  <div class="views" id="views">
+    <section class="pane" id="p-saisie" role="tabpanel" aria-labelledby="t-saisie">
+      <div class="pane-head"><h2>Saisie du mois</h2><button type="button" class="btn" id="lvBtn" aria-haspopup="dialog">Niveaux</button></div>
+      <div id="rows"></div>
+      <p class="hint" id="rowsHint">Élèves présents tout le mois, absences en demi-journées (une journée entière = 2). Le bouton <svg class="inl" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8.5" cy="8" r="3.2"/><path d="M2.5 20c0-3.4 2.7-6 6-6s6 2.6 6 6"/><path d="M17 6.5h4.5m0 0-1.8-1.8M21.5 6.5l-1.8 1.8M21.5 13H17m0 0 1.8-1.8M17 13l1.8 1.8"/></svg> à droite d'une ligne sert à signaler l'arrivée ou le départ d'un élève en cours de mois. Entrée passe au champ suivant.</p>
+    </section>
+
+    <section class="pane" id="p-resultat" role="tabpanel" aria-labelledby="t-resultat">
+      <div class="pane-head"><h2>Résultat</h2><span class="hint" id="resCap"></span></div>
+      <div class="big"><div class="bigpct" id="bigPct">–</div><div class="bigcap">de présents</div></div>
+      <div class="meter" aria-hidden="true"><span id="meter"></span></div>
+      <dl class="stats" id="stats"></dl>
+      <div class="tw"><table id="res"></table></div>
+      <div class="bar"><button type="button" class="btn primary" id="copy">Copier le résultat</button><span class="hint" id="copied" role="status"></span></div>
+    </section>
+
+    <section class="pane" id="p-annee" role="tabpanel" aria-labelledby="t-annee">
+      <div class="pane-head"><h2>Cumul de l'année</h2></div>
+      <div class="tw"><table id="recap"></table></div>
+      <div class="tw"><table id="recapLv"></table></div>
+      <div class="bar">
+        <button type="button" class="btn primary" id="save">Enregistrer un fichier</button>
+        <button type="button" class="btn primary" id="pdf">Exporter en PDF</button>
+        <button type="button" class="btn" id="loadBtn">Charger un fichier</button>
+        <input type="file" id="load" accept=".json,application/json" hidden>
+      </div>
+      <div class="ask" id="importAsk" hidden>
+        <p id="importTxt"></p>
+        <div class="bar"><button type="button" class="btn primary" id="importOk">Remplacer</button><button type="button" class="btn" id="importNo">Annuler</button></div>
+      </div>
+      <p class="hint" id="fileMsg" role="status"></p>
+      <p class="hint">Le fichier contient toute la saisie de l'année. Enregistrez-le après chaque mois, rechargez-le pour retrouver vos données sur un autre appareil.</p>
+    </section>
+  </div>
+</main>
+
+<footer class="footer container">
+  <p id="foot">ComptAppel · Saisie conservée dans ce navigateur</p>
+  <p>Retrouver la Mission Numérique 76 sur <a href="https://prim76.ac-normandie.fr/numerique">Prim76</a></p>
+  <p>Académie de Normandie · Seine-Maritime (76) · Mission Numérique Éducatif 76 · <a href="../../accessibilite.html">Accessibilité : non conforme</a></p>
+</footer>
+<p class="sr-only" id="announce" aria-live="polite"></p>
+
+<dialog id="dlgCal" aria-labelledby="cal-title">
+  <div class="settings">
+    <div class="settings-head"><h2 id="cal-title">Calendrier du mois</h2><button type="button" class="icon-btn" data-close aria-label="Fermer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <p class="hint">Réglages propres à ce mois : un nouveau mois reprend ceux du mois précédent.</p>
+    <fieldset><legend>Zone</legend><div class="seg" id="zone"></div></fieldset>
+    <fieldset><legend>Rythme</legend><div class="seg" id="rhythm"></div></fieldset>
+    <div class="fld"><label for="days">Demi-journées de classe</label>
+      <div class="step"><button type="button" class="stp" id="dm" aria-label="Moins une demi-journée">−</button><input type="number" id="days" min="0" max="80" step="1" inputmode="numeric"><button type="button" class="stp" id="dp" aria-label="Plus une demi-journée">+</button></div>
+      <span class="hint" id="autoNote"></span>
+      <button type="button" class="btn ghost" id="reset" hidden>Remettre le calcul automatique</button>
+    </div>
+    <fieldset><legend>Jours sans classe</legend>
+      <p class="hint">Grève, fermeture, pont, journée pédagogique… retirés du décompte.</p>
+      <div id="offList"></div>
+      <button type="button" class="btn" id="offAdd">+ Ajouter un jour sans classe</button>
+      <p class="hint" id="offNote"></p>
+    </fieldset>
+    <div class="settings-foot"><span></span><button type="button" class="btn primary" data-close>Terminé</button></div>
+  </div>
+</dialog>
+
+<dialog id="dlgMv" aria-labelledby="mv-title">
+  <div class="settings">
+    <div class="settings-head"><h2 id="mv-title">Arrivées et départs</h2><button type="button" class="icon-btn" data-close aria-label="Fermer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <p class="hint">Élève arrivé ou parti en cours de mois : compté à partir du jour d'arrivée, ou jusqu'au jour de départ inclus.</p>
+    <div id="mvList"></div>
+    <button type="button" class="btn" id="mvAdd">+ Ajouter un élève arrivé ou parti</button>
+    <div class="settings-foot"><span></span><button type="button" class="btn primary" data-close>Terminé</button></div>
+  </div>
+</dialog>
+
+<dialog id="dlgLv" aria-labelledby="lv-title">
+  <div class="settings">
+    <div class="settings-head"><h2 id="lv-title">Niveaux de la classe</h2><button type="button" class="icon-btn" data-close aria-label="Fermer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <fieldset><legend>Niveaux</legend><div class="chips" id="levels"></div></fieldset>
+    <fieldset><legend>TPS et dispositifs</legend><div class="chips" id="extraBox"></div></fieldset>
+    <div class="settings-foot"><span></span><button type="button" class="btn primary" data-close>Terminé</button></div>
+  </div>
+</dialog>
+
+<dialog id="help" aria-labelledby="help-title">
+  <div class="settings help">
+    <div class="settings-head"><h2 id="help-title">Comment ça marche ?</h2><button type="button" class="icon-btn" data-close aria-label="Fermer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <p>ComptAppel calcule le pourcentage de présents du cahier d'appel, chaque mois, pour la classe et par niveau.</p>
+    <ol>
+      <li><b>Choisissez le mois</b> en haut. La zone, le rythme et les demi-journées de classe sont dans « Calendrier du mois » (calcul automatique, modifiable).</li>
+      <li><b>Niveaux</b> : bouton « Niveaux » pour cocher ceux de la classe.</li>
+      <li><b>Saisissez</b>, pour chaque niveau, les élèves présents tout le mois et les absences en demi-journées. Entrée passe au champ suivant.</li>
+      <li><b>Arrivée ou départ en cours de mois</b> : bouton à droite de la ligne du niveau.</li>
+      <li><b>Résultat</b> : en direct (à côté de la saisie, ou dans l'onglet Résultat sur petit écran). L'onglet Année donne le cumul, le PDF et la sauvegarde.</li>
+    </ol>
+    <div class="formula">Présences possibles = élèves × demi-journées de classe (+ celles des élèves arrivés ou partis)<br>Présences = possibles − absences<br>% présents = présences ÷ possibles × 100</div>
+    <p class="hint">Rien n'est envoyé sur internet. Les données restent dans ce navigateur.</p>
+    <div class="settings-foot"><span></span><button type="button" class="btn primary" data-close>Compris</button></div>
+  </div>
+</dialog>
+
+<dialog id="settings" aria-labelledby="settings-title">
+  <div class="settings">
+    <div class="settings-head">
+      <h2 id="settings-title">Paramètres d'affichage</h2>
+      <button type="button" class="icon-btn" id="settings-x" aria-label="Fermer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <fieldset><legend>Thème</legend><div class="seg">
+      <label><input type="radio" name="theme" value="light"><span>Clair</span></label>
+      <label><input type="radio" name="theme" value="dark"><span>Sombre</span></label>
+      <label><input type="radio" name="theme" value="auto"><span>Système</span></label></div></fieldset>
+    <fieldset><legend>Taille du texte</legend><div class="seg">
+      <label><input type="radio" name="text" value="100"><span>Normale</span></label>
+      <label><input type="radio" name="text" value="115"><span class="t115">Grande</span></label>
+      <label><input type="radio" name="text" value="130"><span class="t130">Très grande</span></label></div></fieldset>
+    <fieldset><legend>Animations</legend><div class="seg">
+      <label><input type="radio" name="motion" value="on"><span>Activées</span></label>
+      <label><input type="radio" name="motion" value="reduce"><span>Réduites</span></label>
+      <label><input type="radio" name="motion" value="auto"><span>Système</span></label></div></fieldset>
+    <label class="switch"><input type="checkbox" name="contrast"><span>Contraste renforcé</span></label>
+    <div class="settings-foot">
+      <button type="button" class="btn ghost" id="prefs-reset">Réinitialiser</button>
+      <button type="button" class="btn primary" id="settings-close">Fermer</button>
+    </div>
+  </div>
+</dialog>
+
+<script src="scripts/calendar.js"></script>
+<script src="scripts/core.js"></script>
+<script src="scripts/pdf.js"></script>
+<script src="scripts/app.js"></script>
+</body>
+</html>

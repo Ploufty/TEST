@@ -1,0 +1,15 @@
+# Dépendances (aucune aujourd'hui) et sorties de build / publication GitLab Pages
+node_modules/
+public/
+
+# Journaux et secrets locaux
+*.log
+.env
+.env.*
+
+# Fichiers système et éditeurs
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
