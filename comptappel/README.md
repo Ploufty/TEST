@@ -10,7 +10,7 @@ Site 100 % statique, sans build ni dépendance :
 python3 -m http.server 8080
 ```
 
-Puis ouvrez `http://localhost:8080/comptappel/`. La saisie reste dans le navigateur ; enregistrez un fichier pour la retrouver ailleurs.
+Puis ouvrez `http://localhost:8080/comptappel/` (ou, depuis ce dossier, `http://localhost:8080/`). La saisie reste dans le navigateur ; enregistrez un fichier pour la retrouver ailleurs.
 
 ## Méthode de calcul
 
@@ -37,7 +37,7 @@ scripts/calendar.js   Calendriers et calcul des demi-journées
 scripts/core.js       État, normalisation des données importées, calculs, cumul, migration
 scripts/pdf.js        Génération du PDF (sans bibliothèque)
 scripts/app.js        Interface
-tests/                Contrôles : node comptappel/tests/run.js
+tests/                Contrôles : node --test comptappel/tests/*.test.js
 ```
 
 ## Intégration dans Apps1D76
