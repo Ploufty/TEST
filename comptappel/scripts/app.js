@@ -31,8 +31,7 @@
     $('year').innerHTML = C.YEARS.map(y => `<option value="${esc(y)}"${y === S.year ? ' selected' : ''}>${esc(y)}</option>`).join('');
     $('month').innerHTML = ms.map(k => `<option value="${esc(k)}"${k === S.month ? ' selected' : ''}>${esc(C.mlabel(k))}</option>`).join('');
     $('prev').disabled = i <= 0; $('next').disabled = i >= ms.length - 1;
-    $('brandYear').textContent = 'Pourcentage de présents, année ' + S.year;
-    $('foot').textContent = `Cahier d'appel · Année scolaire ${S.year} · Saisie conservée dans ce navigateur`;
+    $('foot').textContent = `ComptAppel · Année scolaire ${S.year} · Saisie conservée dans ce navigateur`;
   }
   function calUI() {
     const m = view();
@@ -239,11 +238,11 @@
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     msg('Fichier enregistré.');
   }
-  $('save').onclick = () => download(`cahier-appel-${S.year}.json`, JSON.stringify(S, null, 1), 'application/json');
+  $('save').onclick = () => download(`comptappel-${S.year}.json`, JSON.stringify(S, null, 1), 'application/json');
   $('pdf').onclick = () => {
     const b = Pdf.buildPdf(S, new Date().toLocaleDateString('fr-FR'));
     if (!b) { $('fileMsg').textContent = "Rien à exporter : saisissez d'abord un mois."; return; }
-    download(`cahier-appel-${S.year}.pdf`, b, 'application/pdf');
+    download(`comptappel-${S.year}.pdf`, b, 'application/pdf');
   };
 
   let pending = null;

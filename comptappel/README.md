@@ -1,4 +1,4 @@
-# Cahier d'appel
+# ComptAppel
 
 Calcul du pourcentage de présents et d'absents du cahier d'appel, par mois, pour la classe entière et par niveau (PS à CM2, TPS, ULIS, UPE2A, UEMA), avec cumul de l'année, export PDF et sauvegarde dans un fichier.
 
@@ -42,4 +42,4 @@ tests/                Contrôles : node comptappel/tests/run.js
 
 ## Intégration dans Apps1D76
 
-Copier ce dossier sous `Outils/cahier-appel/` (fiche `outil.json` incluse), puis `npm run generer`. L'icône maison de l'en-tête renvoie vers `../../index.html` (accueil) et le pied de page vers `../../accessibilite.html` : ces deux liens ne fonctionnent qu'une fois le dossier à cet emplacement.
+Copier ce dossier sous `Outils/comptappel/` (fiche `outil.json` incluse), puis `npm run generer`. L'icône maison de l'en-tête renvoie vers `../../index.html` (accueil) et le pied de page vers `../../accessibilite.html` : ces deux liens ne fonctionnent qu'une fois le dossier à cet emplacement.

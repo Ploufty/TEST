@@ -89,7 +89,7 @@
       y = top - h;
     }
 
-    put(L, "Cahier d'appel", 20, 1, 0, BLUE);
+    put(L, "ComptAppel", 20, 1, 0, BLUE);
     y -= 22; put(L, 'Année scolaire ' + state.year, 12, 1);
     emit(`.91 .553 .404 RG 2.5 w ${L} ${y - 9} m 130 ${y - 9} l S`);
     y -= 10;
@@ -126,7 +126,7 @@
     pages.forEach((c, i) => {
       y = 28;
       const foot = (t, x, right) => c.push(`BT ${GREY} /F1 8 Tf ${(right ? x - textW(t, 8) : x).toFixed(2)} ${y} Td (${enc(t)}) Tj ET`);
-      foot("Cahier d'appel · édité le " + today, L);
+      foot("ComptAppel · édité le " + today, L);
       foot(`Page ${i + 1} / ${pages.length}`, R, 1);
     });
 
@@ -135,7 +135,7 @@
     o[2] = `<</Type/Pages/Kids[${pages.map((_, i) => `${6 + 2 * i} 0 R`).join(' ')}]/Count ${pages.length}>>`;
     o[3] = '<</Type/Font/Subtype/Type1/BaseFont/Helvetica/Encoding/WinAnsiEncoding>>';
     o[4] = '<</Type/Font/Subtype/Type1/BaseFont/Helvetica-Bold/Encoding/WinAnsiEncoding>>';
-    o[5] = `<</Title(${enc("Cahier d'appel " + state.year)})/Creator(${enc("Cahier d'appel")})>>`;
+    o[5] = `<</Title(${enc("ComptAppel " + state.year)})/Creator(${enc("ComptAppel")})>>`;
     pages.forEach((c, i) => {
       const t = c.join('\n');
       o[6 + 2 * i] = `<</Type/Page/Parent 2 0 R/MediaBox[0 0 595 842]/Resources<</Font<</F1 3 0 R/F2 4 0 R>>>>/Contents ${7 + 2 * i} 0 R>>`;

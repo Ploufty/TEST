@@ -90,7 +90,7 @@ a.icon-btn{text-decoration:none}
 
 /* Hero */
 .hero{padding-block:20px 12px;text-align:center}
-.hero h1{margin:0;font-weight:800;font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.12;text-wrap:balance;overflow-wrap:normal}
+.hero h1{margin:0;font-weight:800;font-size:clamp(1.35rem,4vw,2rem);line-height:1.15;text-wrap:balance;overflow-wrap:normal}
 .hero h1 .accent{position:relative;white-space:nowrap}
 .hero h1 .accent svg{position:absolute;left:0;bottom:-.3em;width:100%;height:.3em;stroke:var(--c-orange);stroke-width:4}
 .hero p{color:var(--muted);margin:14px auto 18px;max-width:60ch}

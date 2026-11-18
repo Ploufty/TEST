@@ -40,8 +40,8 @@ test('/Length exact pour chaque flux', () => {
   assert.ok(k >= 2, 'au moins deux pages attendues');
 });
 test('dictionnaire Info et titre = année de l’état', () => {
-  assert.ok(pdf.includes("/Title(Cahier d'appel 2026-2027)"));
-  assert.ok(pdf.includes("/Creator(Cahier d'appel)"));
+  assert.ok(pdf.includes("/Title(ComptAppel 2026-2027)"));
+  assert.ok(pdf.includes("/Creator(ComptAppel)"));
 });
 test('CP1252 : œ € – … « » ’ encodés', () => {
   assert.ok(pdf.includes('\x96 \x9cuvre \xab No\xebl \xbb \x85 5 \x80'));
