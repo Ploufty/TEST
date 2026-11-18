@@ -45,12 +45,12 @@
       $('rows').innerHTML = '<div class="emptybox"><p>Choisissez les niveaux de la classe pour commencer.</p><button type="button" class="btn primary" data-pick>Choisir les niveaux</button></div>';
       return;
     }
-    $('rows').innerHTML = '<div class="lhead" aria-hidden="true"><span></span><span>Élèves</span><span>Absences</span><span></span></div>' + on.map(l => {
+    $('rows').innerHTML = '<div class="lhead" aria-hidden="true"><span></span><span>Élèves</span><span>Absences</span><span class="hmv">Arrivée / départ</span></div>' + on.map(l => {
       const d = C.lvData(m, l), n = d.moves.length;
       return `<div class="lrow" role="group" aria-label="${esc(l)}" data-l="${esc(l)}"><b class="lname">${esc(l)}</b>
         <input class="num" type="number" min="0" max="${C.MAX.eleves}" step="1" inputmode="numeric" data-f="n" value="${esc(d.n)}" aria-label="${esc(l)} : élèves présents tout le mois">
         <input class="num" type="number" min="0" max="${C.MAX.abs}" step="1" inputmode="numeric" data-f="abs" value="${esc(d.abs)}" aria-label="${esc(l)} : absences en demi-journées">
-        <button type="button" class="icon-btn mvbtn" data-mv aria-label="${esc(l)} : arrivées et départs${n ? ' (' + n + ')' : ''}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"/></svg>${n ? `<span class="badge" aria-hidden="true">${n}</span>` : ''}</button>
+        <button type="button" class="icon-btn mvbtn" data-mv data-tip="Arrivée ou départ d'un élève en cours de mois" aria-label="${esc(l)} : arrivées et départs${n ? ' (' + n + ')' : ''}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8.5" cy="8" r="3.2"/><path d="M2.5 20c0-3.4 2.7-6 6-6s6 2.6 6 6"/><path d="M17 6.5h4.5m0 0-1.8-1.8M21.5 6.5l-1.8 1.8M21.5 13H17m0 0 1.8-1.8M17 13l1.8 1.8"/></svg>${n ? `<span class="badge" aria-hidden="true">${n}</span>` : ''}</button>
       </div>`;
     }).join('');
   }
@@ -307,7 +307,7 @@
   // --- Affichage : thème, texte, animations, contraste (P, applyPrefs : scripts/prefs.js)
   const dlg = $('settings');
   const isDark = () => ROOT.dataset.theme ? ROOT.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-  const themeBtn = () => $('theme-toggle').setAttribute('aria-label', isDark() ? 'Activer le mode clair' : 'Activer le mode sombre');
+  const themeBtn = () => { const t = isDark() ? 'Activer le mode clair' : 'Activer le mode sombre'; $('theme-toggle').setAttribute('aria-label', t); $('theme-toggle').title = t; };
   const savePrefs = () => { try { localStorage.setItem(PK, JSON.stringify(P)); } catch (e) { storeFail(); } applyPrefs(); themeBtn(); };
   function syncDlg() {
     for (const n of ['theme', 'text', 'motion']) {
@@ -324,6 +324,7 @@
   $('prefs-reset').onclick = () => { P = {}; savePrefs(); syncDlg(); };
   $('theme-toggle').onclick = () => { P.theme = isDark() ? 'light' : 'dark'; savePrefs(); };
 
+  document.querySelectorAll('.top .icon-btn[aria-label]').forEach(b => { b.title = b.getAttribute('aria-label'); });
   themeBtn();
   refresh();
 })();

@@ -79,7 +79,7 @@ a.icon-btn{text-decoration:none}
 .brand b span{color:var(--link)}
 .brand small{color:var(--muted);font-size:.8rem}
 .actions{display:flex;gap:10px}
-.icon-btn{min-width:46px;min-height:46px;padding:0 12px;border:var(--bw) solid var(--edge);border-radius:15px;background:var(--bg);color:var(--fg);
+.icon-btn{min-width:46px;min-height:46px;padding:0;border:var(--bw) solid var(--edge);border-radius:999px;background:var(--bg);color:var(--fg);
   box-shadow:var(--sh-sm);display:inline-flex;align-items:center;justify-content:center;gap:8px;font:600 .9rem var(--f);cursor:pointer;transition:box-shadow .2s}
 .icon-btn:active,.btn:active{box-shadow:var(--sh-in)}
 :root[data-contrast="high"] .icon-btn,:root[data-contrast="high"] .btn,:root[data-contrast="high"] .panel,:root[data-contrast="high"] input,:root[data-contrast="high"] select{border-color:var(--fg)}
@@ -97,7 +97,7 @@ a.icon-btn{text-decoration:none}
 .yearfld{margin-bottom:14px}
 .pill{display:flex;align-items:center;gap:4px;border-radius:999px;box-shadow:var(--sh-in);padding:5px;width:100%;max-width:420px;margin-inline:auto;border:var(--bw) solid var(--line)}
 .pill select{flex:1;border:0;background:transparent;box-shadow:none;font-weight:700;font-size:1.05rem;text-align:center;text-align-last:center;min-height:46px;color:var(--fg);cursor:pointer;padding-inline:4px}
-.pill .icon-btn{border-radius:999px;padding:0 8px}
+.icon-btn.wide{padding:0 16px}
 .pill .icon-btn:disabled{opacity:.4;cursor:default}
 
 /* Navigation par sections */
