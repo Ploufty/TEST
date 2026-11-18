@@ -287,6 +287,10 @@
     }
     dlg.querySelector('input[name=contrast]').checked = P.contrast === true;
   }
+  const hd = $('help');
+  $('help-open').onclick = () => hd.showModal();
+  $('help-close').onclick = $('help-x').onclick = () => hd.close();
+  hd.onclick = e => { if (e.target === hd) hd.close(); };
   $('settings-open').onclick = () => { syncDlg(); dlg.showModal(); };
   $('settings-close').onclick = $('settings-x').onclick = () => dlg.close();
   dlg.onclick = e => { if (e.target === dlg) dlg.close(); };

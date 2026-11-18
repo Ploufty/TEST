@@ -18,6 +18,7 @@
   <div class="brandbar">
     <div class="brand"><b>Cahier d'<span>appel</span></b><small id="brandYear">Pourcentage de présents</small></div>
     <div class="actions">
+      <button type="button" class="icon-btn qm" id="help-open" aria-haspopup="dialog" aria-label="Aide : comment ça marche"><span aria-hidden="true">?</span></button>
       <button type="button" class="icon-btn" id="theme-toggle" aria-label="Activer le mode sombre">
         <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
         <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>
@@ -115,6 +116,33 @@
 
 <div class="livebar" id="live" hidden><div id="liveIn"></div></div>
 <p class="sr-only" id="announce" aria-live="polite"></p>
+
+<dialog id="help" aria-labelledby="help-title">
+  <div class="settings help">
+    <div class="settings-head">
+      <h2 id="help-title">Comment ça marche ?</h2>
+      <button type="button" class="icon-btn" id="help-x" aria-label="Fermer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <p>Cette appli calcule le pourcentage de présents du cahier d'appel, chaque mois, pour la classe entière et par niveau.</p>
+    <ol>
+      <li><b>Choisissez le mois</b>, la zone (A, B, C ou Corse) et le rythme (4 ou 4,5 jours). Les demi-journées de classe se calculent seules : vacances, fériés et ponts sont retirés. Vous pouvez corriger le total à la main.</li>
+      <li><b>Cochez les niveaux</b> de la classe. TPS et dispositifs (ULIS, UPE2A, UEMA) sont dans une rubrique repliée.</li>
+      <li><b>Saisissez, pour chaque niveau</b>, les élèves présents tout le mois et les absences du mois en demi-journées (une journée entière = 2).</li>
+      <li><b>Élève arrivé ou parti en cours de mois</b> : ajoutez-le avec sa date. Il est compté à partir du jour d'arrivée, ou jusqu'au jour de départ inclus.</li>
+      <li><b>Jour sans classe imprévu</b> (grève, fermeture…) : ajoutez sa date dans « Jours sans classe ». Il est retiré du total.</li>
+      <li><b>Lisez le résultat</b> : par niveau et pour la classe, mis à jour en direct dans la barre du bas.</li>
+    </ol>
+    <div class="formula">Présences possibles = élèves × demi-journées de classe (+ celles des élèves arrivés ou partis)<br>Présences = possibles − absences<br>% présents = présences ÷ possibles × 100</div>
+    <h3>Bon à savoir</h3>
+    <ul>
+      <li>Rien n'est envoyé sur internet : les données restent dans ce navigateur, et aucun nom d'élève n'est demandé.</li>
+      <li>« Enregistrer un fichier » garde une copie de l'année, « Charger un fichier » la restaure. « Exporter en PDF » produit les tableaux à imprimer.</li>
+      <li>Chaque mois garde ses propres réglages : changer le rythme ou décocher un niveau ne modifie pas les mois déjà saisis.</li>
+      <li>Vacances et fériés suivent le calendrier officiel (2026-2027 et 2027-2028). Alsace-Moselle et outre-mer : ajoutez les jours à la main.</li>
+    </ul>
+    <div class="settings-foot"><span></span><button type="button" class="btn primary" id="help-close">Compris</button></div>
+  </div>
+</dialog>
 
 <dialog id="settings" aria-labelledby="settings-title">
   <div class="settings">
