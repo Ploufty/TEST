@@ -51,6 +51,26 @@ svg{width:1.4rem;height:1.4rem;fill:none;stroke:currentColor;stroke-width:2;stro
 :root[data-motion="reduce"] .blob{will-change:auto}
 :root[data-motion="reduce"] *,:root[data-motion="reduce"] *::before{animation:none!important;transition:none!important}
 
+/* Symboles % flottants du bandeau : décor, couleurs du thème, transform seul */
+.hdr{position:relative}
+.hdr>*:not(.floaters){position:relative;z-index:1}
+.floaters{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.floaters span{position:absolute;left:var(--x);top:var(--y);font:800 var(--s) var(--f);color:var(--c);opacity:.42;transform:rotate(var(--r));animation:floaty var(--d) ease-in-out var(--t) infinite;will-change:transform}
+@keyframes floaty{50%{transform:translate3d(0,-14px,0) rotate(calc(var(--r) + 10deg))}}
+:root[data-motion="reduce"] .floaters span{animation:none;will-change:auto}
+:root[data-contrast="high"] .floaters{display:none}
+@media (max-width:520px){.floaters span:nth-child(n+7){display:none}.floaters span{opacity:.3}}
+.floaters span:nth-child(1){--x:4%;--y:12%;--s:2.4rem;--c:var(--c-orange);--d:9s;--t:0s;--r:-14deg}
+.floaters span:nth-child(2){--x:14%;--y:62%;--s:1.5rem;--c:var(--c-lav);--d:7s;--t:-2s;--r:10deg}
+.floaters span:nth-child(3){--x:24%;--y:30%;--s:1.1rem;--c:var(--c-mint);--d:8s;--t:-4s;--r:-6deg}
+.floaters span:nth-child(4){--x:9%;--y:84%;--s:1.9rem;--c:var(--c-blue);--d:10s;--t:-1s;--r:16deg}
+.floaters span:nth-child(5){--x:90%;--y:10%;--s:2.2rem;--c:var(--c-blue);--d:8s;--t:-3s;--r:12deg}
+.floaters span:nth-child(6){--x:80%;--y:58%;--s:1.4rem;--c:var(--c-mauve);--d:9s;--t:-5s;--r:-10deg}
+.floaters span:nth-child(7){--x:94%;--y:76%;--s:2.6rem;--c:var(--c-orange);--d:11s;--t:-2s;--r:8deg}
+.floaters span:nth-child(8){--x:72%;--y:16%;--s:1.1rem;--c:var(--c-lav);--d:7s;--t:-6s;--r:-16deg}
+.floaters span:nth-child(9){--x:34%;--y:88%;--s:1.2rem;--c:var(--c-mauve);--d:10s;--t:-3s;--r:6deg}
+.floaters span:nth-child(10){--x:62%;--y:86%;--s:1.3rem;--c:var(--c-mint);--d:8s;--t:-1s;--r:-8deg}
+
 /* En-tête */
 .brandbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px 16px;padding-block:16px 6px}
 .brand b{display:block;font-size:1.35rem;font-weight:800;line-height:1.1}
