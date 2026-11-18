@@ -1,5 +1,7 @@
 # Randomizer — Tirage au sort
 
+> Autre application du dépôt : [Cahier d'appel](comptappel/README.md) (pourcentage de présents par mois et par niveau).
+
 Petite application web statique pour tirer un nom au sort dans une liste (import `.txt`, durée de tirage réglable, animation avec confettis).
 
 ## Structure

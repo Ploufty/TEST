@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Cahier d'appel</title>
+<meta name="description" content="Pourcentage de présents et d'absents du cahier d'appel, par mois, pour la classe et par niveau.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700;800&amp;display=swap">
+<link rel="stylesheet" href="css/style.css">
+<script src="scripts/prefs.js"></script>
+</head>
+<body>
+<a class="skip" href="#calendrier">Aller au calcul</a>
+<div class="bg" aria-hidden="true"><div class="blob blob-a"></div><div class="blob blob-b"></div><div class="blob blob-c"></div><div class="dots"></div></div>
+
+<header class="container">
+  <div class="brandbar">
+    <div class="brand"><b>Cahier d'<span>appel</span></b><small id="brandYear">Pourcentage de présents</small></div>
+    <div class="actions">
+      <button type="button" class="icon-btn" id="theme-toggle" aria-label="Activer le mode sombre">
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>
+      </button>
+      <button type="button" class="icon-btn" id="settings-open" aria-haspopup="dialog">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        <span class="btn-label">Affichage</span>
+      </button>
+    </div>
+  </div>
+
+  <p class="banner" id="storeWarn" role="alert" hidden>Sauvegarde automatique indisponible : enregistrez régulièrement un fichier.</p>
+
+  <section class="hero">
+    <h1>Compter les <span class="accent">présences<svg viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path d="M4 14C80 4 200 4 296 12"/></svg></span> du cahier d'appel</h1>
+    <p>Choisissez le mois : les demi-journées de classe se calculent selon votre zone et votre rythme. Résultat pour la classe et par niveau.</p>
+    <div class="fld yearfld" id="yearBox" hidden><label for="year">Année scolaire</label><select id="year"></select></div>
+    <div class="pill" role="group" aria-label="Mois">
+      <button type="button" class="icon-btn" id="prev" aria-label="Mois précédent"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
+      <label for="month" class="sr-only">Mois</label><select id="month"></select>
+      <button type="button" class="icon-btn" id="next" aria-label="Mois suivant"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+    </div>
+  </section>
+</header>
+
+<nav class="catnav container" aria-label="Sections"><ul>
+  <li><a href="#calendrier">Calendrier</a></li><li><a href="#niveaux">Niveaux</a></li><li><a href="#saisie">Saisie</a></li><li><a href="#resultat">Résultat</a></li><li><a href="#cumul">Cumul</a></li>
+</ul></nav>
+
+<main class="main container" id="main">
+  <section class="panel" id="calendrier" aria-labelledby="h-cal">
+    <h2 id="h-cal">Calendrier</h2>
+    <p class="hint">Réglages propres à ce mois : un nouveau mois reprend ceux du mois précédent.</p>
+    <div class="row">
+      <div role="radiogroup" aria-labelledby="l-zone"><div class="lbl" id="l-zone">Zone</div><div class="seg" id="zone"></div></div>
+      <div role="radiogroup" aria-labelledby="l-rhythm"><div class="lbl" id="l-rhythm">Rythme</div><div class="seg" id="rhythm"></div></div>
+    </div>
+    <div class="days">
+      <div class="fld"><label for="days">Demi-journées de classe</label>
+        <div class="step"><button type="button" class="stp" id="dm" aria-label="Moins une demi-journée">−</button><input type="number" id="days" min="0" max="80" step="1" inputmode="numeric"><button type="button" class="stp" id="dp" aria-label="Plus une demi-journée">+</button></div></div>
+      <span class="hint" id="autoNote"></span>
+      <button type="button" class="btn ghost" id="reset" hidden>Remettre le calcul automatique</button>
+    </div>
+    <p class="hint" id="offNote"></p>
+    <div class="offbox">
+      <h3>Jours sans classe</h3>
+      <p class="hint">Grève, fermeture, pont, journée pédagogique… Ces jours sont retirés du décompte automatique.</p>
+      <div id="offList" class="moves"></div>
+      <button type="button" class="btn" id="offAdd">+ Ajouter un jour sans classe</button>
+    </div>
+  </section>
+
+  <section class="panel" id="niveaux" aria-labelledby="h-niv">
+    <h2 id="h-niv">Niveaux de la classe</h2>
+    <div class="chips" id="levels"></div>
+    <button type="button" class="btn ghost disclosure" id="extraBtn" aria-expanded="false" aria-controls="extraBox">TPS et dispositifs</button>
+    <div class="chips" id="extraBox" hidden></div>
+  </section>
+
+  <section class="panel" id="saisie" aria-labelledby="h-sai">
+    <h2 id="h-sai">Effectifs et absences du mois</h2>
+    <div id="cards"></div>
+  </section>
+
+  <section class="panel" id="resultat" aria-labelledby="h-res">
+    <h2 id="h-res">Résultat</h2>
+    <div id="sum"></div>
+    <div class="tw"><table id="res"></table></div>
+    <div class="bar">
+      <button type="button" class="btn primary" id="copy">Copier le résultat</button>
+      <span class="hint" id="copied" role="status"></span>
+    </div>
+  </section>
+
+  <section class="panel" id="cumul" aria-labelledby="h-cum">
+    <h2 id="h-cum">Cumul de l'année</h2>
+    <div class="tw"><table id="recap"></table></div>
+    <div class="tw"><table id="recapLv"></table></div>
+    <div class="bar">
+      <button type="button" class="btn primary" id="save">Enregistrer un fichier</button>
+      <button type="button" class="btn primary" id="pdf">Exporter en PDF</button>
+      <button type="button" class="btn" id="loadBtn">Charger un fichier</button>
+      <input type="file" id="load" accept=".json,application/json" hidden>
+    </div>
+    <div class="ask" id="importAsk" hidden>
+      <p id="importTxt"></p>
+      <div class="bar"><button type="button" class="btn primary" id="importOk">Remplacer</button><button type="button" class="btn" id="importNo">Annuler</button></div>
+    </div>
+    <p class="hint" id="fileMsg" role="status"></p>
+    <p class="hint">Le fichier contient toute la saisie de l'année. Enregistrez-le après chaque mois, rechargez-le pour retrouver vos données sur un autre appareil.</p>
+  </section>
+</main>
+
+<footer class="footer container" id="foot">Cahier d'appel · Saisie conservée dans ce navigateur</footer>
+
+<div class="livebar" id="live" hidden><div id="liveIn"></div></div>
+<p class="sr-only" id="announce" aria-live="polite"></p>
+
+<dialog id="settings" aria-labelledby="settings-title">
+  <div class="settings">
+    <div class="settings-head">
+      <h2 id="settings-title">Paramètres d'affichage</h2>
+      <button type="button" class="icon-btn" id="settings-x" aria-label="Fermer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <fieldset><legend>Thème</legend><div class="seg">
+      <label><input type="radio" name="theme" value="light"><span>Clair</span></label>
+      <label><input type="radio" name="theme" value="dark"><span>Sombre</span></label>
+      <label><input type="radio" name="theme" value="auto"><span>Système</span></label></div></fieldset>
+    <fieldset><legend>Taille du texte</legend><div class="seg">
+      <label><input type="radio" name="text" value="100"><span>Normale</span></label>
+      <label><input type="radio" name="text" value="115"><span class="t115">Grande</span></label>
+      <label><input type="radio" name="text" value="130"><span class="t130">Très grande</span></label></div></fieldset>
+    <fieldset><legend>Animations</legend><div class="seg">
+      <label><input type="radio" name="motion" value="on"><span>Activées</span></label>
+      <label><input type="radio" name="motion" value="reduce"><span>Réduites</span></label>
+      <label><input type="radio" name="motion" value="auto"><span>Système</span></label></div></fieldset>
+    <label class="switch"><input type="checkbox" name="contrast"><span>Contraste renforcé</span></label>
+    <div class="settings-foot">
+      <button type="button" class="btn ghost" id="prefs-reset">Réinitialiser</button>
+      <button type="button" class="btn primary" id="settings-close">Fermer</button>
+    </div>
+  </div>
+</dialog>
+
+<script src="scripts/calendar.js"></script>
+<script src="scripts/core.js"></script>
+<script src="scripts/pdf.js"></script>
+<script src="scripts/app.js"></script>
+</body>
+</html>
