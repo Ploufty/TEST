@@ -1,0 +1,7 @@
+{
+  "titre": "Cahier d'appel",
+  "description": "Pourcentage de présents et d'absents du cahier d'appel, par mois, pour la classe et par niveau.",
+  "icone": "📋",
+  "categorie": "direction",
+  "page": "index.html"
+}

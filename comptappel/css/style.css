@@ -73,6 +73,8 @@ svg{width:1.4rem;height:1.4rem;fill:none;stroke:currentColor;stroke-width:2;stro
 
 /* En-tête */
 .brandbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px 16px;padding-block:16px 6px}
+.brandwrap{display:flex;align-items:center;gap:12px;min-width:0}
+a.icon-btn{text-decoration:none}
 .brand b{display:block;font-size:1.35rem;font-weight:800;line-height:1.1}
 .brand b span{color:var(--link)}
 .brand small{color:var(--muted);font-size:.8rem}
@@ -179,6 +181,8 @@ td.warn{color:var(--warn);font-weight:800}
 .livebar span{font-size:.88rem;color:var(--muted);font-variant-numeric:tabular-nums}
 
 .footer{text-align:center;color:var(--muted);font-size:.85rem;padding:28px 0 0}
+.footer p{margin:4px 0}
+.footer a{color:var(--link)}
 
 /* Dialogue d'affichage */
 dialog{border:var(--bw) solid var(--edge);border-radius:24px;background:var(--bg);color:var(--fg);box-shadow:var(--sh-out);padding:0;width:min(440px,calc(100% - 32px));max-height:calc(100% - 32px)}

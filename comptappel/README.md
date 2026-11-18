@@ -39,3 +39,7 @@ scripts/pdf.js        Génération du PDF (sans bibliothèque)
 scripts/app.js        Interface
 tests/                Contrôles : node comptappel/tests/run.js
 ```
+
+## Intégration dans Apps1D76
+
+Copier ce dossier sous `Outils/cahier-appel/` (fiche `outil.json` incluse), puis `npm run generer`. L'icône maison de l'en-tête renvoie vers `../../index.html` (accueil) et le pied de page vers `../../accessibilite.html` : ces deux liens ne fonctionnent qu'une fois le dossier à cet emplacement.
