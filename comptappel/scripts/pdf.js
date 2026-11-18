@@ -2,6 +2,7 @@
 (function (root) {
   const isNode = typeof module !== 'undefined';
   const Core = isNode ? require('./core.js') : root.Core;
+  const Cal = isNode ? require('./calendar.js') : root.Calendrier;
 
   // CP1252 : caractères hors Latin-1 placés en 0x80-0x9F
   const CP1252 = {
@@ -104,7 +105,7 @@
       need(30 + 16 + 8 + tableH(trows) + offLines.length * 12 + 4); // bloc du mois jamais coupé
       y -= 30; put(L, Core.mlabel(mk), 13, 1, 0, BLUE);
       put(R, `${D} demi-journées de classe${m.days !== null ? ' (saisie manuelle)' : ''}`, 9.5, 0, 1, GREY);
-      y -= 16; put(L, fit(`Zone ${m.zone} · ${zr(m)} · niveaux : ${rows.map(r => r.l).join(' ')}`, 9.5, 0, R - L), 9.5, 0, 0, GREY);
+      y -= 16; put(L, fit(`${Cal.zoneLabel(m.zone)} · ${zr(m)} · niveaux : ${rows.map(r => r.l).join(' ')}`, 9.5, 0, R - L), 9.5, 0, 0, GREY);
       y -= 8;
       table(BD, ['Niveau', 'Élèves', 'Possibles', 'Absences', 'Présences', '% absents', '% présents'], trows);
       offLines.forEach(t => { y -= 12; put(L, t, 9, 0, 0, GREY); });

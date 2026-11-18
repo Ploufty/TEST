@@ -9,21 +9,25 @@
  *
  * 2026-2027 : arrêté du 22 octobre 2025 (JO du 23 octobre 2025).
  * 2027-2028 : arrêté du 21 juillet 2026 (JO du 23 juillet 2026).
- * Dates vérifiées le 18 novembre 2026 par recoupement de plusieurs sources (education.gouv.fr cité par
- * onisep.fr, banquedesterritoires.fr, vacances-scolaires.com, annuaire-education.fr) ;
- * les sites ministériels n'ont pas pu être consultés directement. À revérifier chaque année.
- * Pour ajouter une année : copier un bloc, mettre à jour les dates.
- * Non gérés : Corse (suit la zone A), Alsace-Moselle (Vendredi saint, 26 décembre), outre-mer.
+ * Dates confirmées le 18 novembre 2026 sur les infographies officielles « Vacances scolaires 2026-2027 » et
+ * « 2027-2028 » (Famille-Scolarité, Service-Public.fr), en plus du recoupement de plusieurs sources. À revérifier chaque année.
+ * Corse : rentrée le 3 septembre 2026, vacances d'hiver et de printemps de la zone A ; Toussaint, Noël et été : dates
+ * communes (cases vides sur l'infographie : hypothèse). 2027-2028 : Corse « non communiqué », donc absente de cette année.
+ * Pour ajouter une année : copier un bloc, mettre à jour les dates (debutZone : rentrée propre à une zone).
+ * Non gérés : Alsace-Moselle (Vendredi saint, 26 décembre), outre-mer.
  */
 (function (root) {
+  const A26 = [['2027-02-13', '2027-03-01'], ['2027-04-10', '2027-04-26']];
   const CALENDARS = {
     '2026-2027': {
       debut: '2026-09-01', fin: '2027-07-03',
+      debutZone: { Corse: '2026-09-03' },
       communes: [['2026-10-17', '2026-11-02'], ['2026-12-19', '2027-01-04']],
       zones: {
-        A: [['2027-02-13', '2027-03-01'], ['2027-04-10', '2027-04-26']],
+        A: A26,
         B: [['2027-02-20', '2027-03-08'], ['2027-04-17', '2027-05-03']],
-        C: [['2027-02-06', '2027-02-22'], ['2027-04-03', '2027-04-19']]
+        C: [['2027-02-06', '2027-02-22'], ['2027-04-03', '2027-04-19']],
+        Corse: A26
       },
       feries: [
         { date: '2026-11-11', label: 'Armistice' },
@@ -78,9 +82,9 @@
   function halfDays(year, date, zone, rhythm, ignoreFeries) {
     const c = CALENDARS[year];
     const w = new Date(date + 'T00:00:00Z').getUTCDay();
-    if (w === 0 || w === 6 || date < c.debut || date > c.fin) return 0;
+    if (w === 0 || w === 6 || date < ((c.debutZone && c.debutZone[zone]) || c.debut) || date > c.fin) return 0;
     if (!ignoreFeries && c.feries.some(f => f.date === date)) return 0;
-    if (c.communes.concat(c.zones[zone]).some(([a, b]) => date >= a && date < b)) return 0;
+    if (c.communes.concat(c.zones[zone] || c.zones.A).some(([a, b]) => date >= a && date < b)) return 0;
     return w === 3 ? (rhythm === '4.5' ? 1 : 0) : 2;
   }
 
@@ -104,6 +108,8 @@
     return year ? CALENDARS[year].feries.filter(f => f.date.startsWith(mk) && halfDays(year, f.date, zone, '4.5', true) > 0) : [];
   }
 
-  const api = { CALENDARS, schoolMonths, yearOf, halfDays, autoDays, feriesOf, daysInMonth, addDays };
+  const zonesOf = year => Object.keys(CALENDARS[year].zones);
+  const zoneLabel = z => (z === 'Corse' ? 'Corse' : 'Zone ' + z);
+  const api = { CALENDARS, zonesOf, zoneLabel, schoolMonths, yearOf, halfDays, autoDays, feriesOf, daysInMonth, addDays };
   if (typeof module !== 'undefined') module.exports = api; else root.Calendrier = api;
 })(this);

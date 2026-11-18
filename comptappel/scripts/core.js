@@ -53,7 +53,7 @@
       .filter(x => x.date && !seen.has(x.date) && seen.add(x.date)).slice(0, MAX.off);
     const days = int(m.days, MAX.days);
     return {
-      zone: ['A', 'B', 'C'].includes(m.zone) ? m.zone : 'A',
+      zone: ['A', 'B', 'C', 'Corse'].includes(m.zone) ? m.zone : 'A',
       rhythm: m.rhythm === '4.5' ? '4.5' : '4',
       levels, days: days === '' ? null : days, off, lv
     };

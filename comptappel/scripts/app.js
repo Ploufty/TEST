@@ -36,7 +36,7 @@
   }
   function calUI() {
     const m = view();
-    radios($('zone'), 'zone', ['A', 'B', 'C'].map(z => [z, 'Zone ' + z]), m.zone);
+    radios($('zone'), 'zone', Cal.zonesOf(Cal.yearOf(S.month)).map(z => [z, Cal.zoneLabel(z)]), m.zone);
     radios($('rhythm'), 'rhythm', [['4', '4 jours'], ['4.5', '4,5 jours (mercredi matin)']], m.rhythm);
     $('offList').innerHTML = m.off.map((o, i) => `<div class="mv" data-o="${i}">
       <input type="date" data-ok="date" value="${esc(o.date)}" min="${S.month}-01" max="${S.month}-${Cal.daysInMonth(S.month)}" aria-label="Date du jour sans classe">
@@ -53,6 +53,7 @@
     const off = m.off.filter(o => o.date), fer = Cal.feriesOf(S.month, m.zone);
     $('offNote').textContent = [
       off.length ? `${off.length} jour${off.length > 1 ? 's' : ''} retiré${off.length > 1 ? 's' : ''} : ` + off.map(o => dfr(o.date) + (o.label ? ' (' + o.label + ')' : '')).join(', ') + '.' : '',
+      Cal.zonesOf(Cal.yearOf(S.month)).includes(m.zone) ? '' : 'Calendrier ' + m.zone + ' non communiqué pour cette année : zone A utilisée.',
       fer.length ? 'Fériés : ' + fer.map(f => dfr(f.date) + ' (' + f.label + ')').join(', ') + '.' : ''
     ].filter(Boolean).join(' ');
   }

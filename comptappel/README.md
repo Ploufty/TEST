@@ -23,7 +23,9 @@ Puis ouvrez `http://localhost:8080/comptappel/`. La saisie reste dans le navigat
 
 Années 2026-2027 et 2027-2028 dans `scripts/calendar.js` (sources et date de vérification en tête du fichier). Le lundi de Pentecôte est compté sans classe.
 
-Non gérés automatiquement : **Corse** (suit le calendrier de la zone A : choisissez la zone A), **Alsace-Moselle** (Vendredi saint, 26 décembre) et **outre-mer**. Ajoutez ces jours via « Jours sans classe ».
+**Corse** : gérée pour 2026-2027 (rentrée le 3 septembre, vacances d'hiver et de printemps de la zone A ; Toussaint, Noël et été supposés communs, cases vides sur l'infographie officielle). Pour 2027-2028 le calendrier Corse est « non communiqué » : la zone A est utilisée en attendant.
+
+Non gérés automatiquement : **Alsace-Moselle** (Vendredi saint, 26 décembre) et **outre-mer**. Ajoutez ces jours via « Jours sans classe ».
 
 ## Structure
 
